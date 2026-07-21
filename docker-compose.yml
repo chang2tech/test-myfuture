@@ -1,0 +1,104 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: myfuture_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-myfuture}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myfuture_secret_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-myfuture}
+    ports:
+      - '${POSTGRES_PORT:-54321}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-myfuture}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: myfuture_redis
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT:-6380}:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: development
+    container_name: myfuture_migrate
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-myfuture}:${POSTGRES_PASSWORD:-myfuture_secret_2026}@postgres:5432/${POSTGRES_DB:-myfuture}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npx ts-node prisma/seed.ts"
+    restart: 'no'
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: development
+    container_name: myfuture_server
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 4721
+      DATABASE_URL: postgresql://${POSTGRES_USER:-myfuture}:${POSTGRES_PASSWORD:-myfuture_secret_2026}@postgres:5432/${POSTGRES_DB:-myfuture}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CORS_ORIGINS: http://localhost:${CLIENT_PORT:-3721}
+      CLIENT_URL: http://localhost:${CLIENT_PORT:-3721}
+    ports:
+      - '${SERVER_PORT:-4721}:4721'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./server/src:/app/src
+      - ./server/prisma:/app/prisma
+    command: npm run start:dev
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      target: development
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${SERVER_PORT:-4721}/api
+        NEXT_PUBLIC_API_ORIGIN: http://localhost:${SERVER_PORT:-4721}
+        NEXT_PUBLIC_SITE_URL: http://localhost:${CLIENT_PORT:-3721}
+    container_name: myfuture_client
+    restart: unless-stopped
+    environment:
+      API_URL: http://server:4721/api
+      NEXT_PUBLIC_API_URL: http://localhost:${SERVER_PORT:-4721}/api
+      NEXT_PUBLIC_API_ORIGIN: http://localhost:${SERVER_PORT:-4721}
+      NEXT_PUBLIC_SITE_URL: http://localhost:${CLIENT_PORT:-3721}
+    ports:
+      - '${CLIENT_PORT:-3721}:3721'
+    depends_on:
+      - server
+    volumes:
+      - ./client/src:/app/src
+    command: npm run dev -- -p 3721 -H 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:

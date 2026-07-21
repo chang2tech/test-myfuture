@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NewsCategory {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  description String?
+  sortOrder   Int           @default(0)
+  articles    NewsArticle[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("news_categories")
+}
+
+model NewsArticle {
+  id              String       @id @default(cuid())
+  slug            String       @unique
+  externalSlug    String?      @unique
+  title           String
+  excerpt         String?      @db.Text
+  content         String       @db.Text
+  coverImage      String?
+  source          String?
+  sourceUrl       String?
+  keywords        String[]     @default([])
+  readTimeMinutes Int          @default(5)
+  isHot           Boolean      @default(false)
+  isFeatured      Boolean      @default(false)
+  viewCount       Int          @default(0)
+  categorySortOrder Int        @default(0)
+  publishedAt     DateTime     @default(now())
+  categoryId      String
+  category        NewsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@index([categoryId])
+  @@index([publishedAt])
+  @@index([isFeatured])
+  @@map("news_articles")
+}
+
+model Project {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  address    String
+  coverImage String?
+  investor   String?
+  isFeatured Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isFeatured])
+  @@map("projects")
+}

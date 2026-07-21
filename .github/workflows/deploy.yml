@@ -1,0 +1,331 @@
+# ============================================================
+# Pasteur Dalat — CI/CD Pipeline
+#
+# Trigger: push to main branch (or manual dispatch)
+# Flow:
+#   1. type-check    — tsc --noEmit trên cả server + client
+#   2. build-push    — build Docker images → push lên GHCR
+#   3. deploy        — SSH vào VPS, pull images mới, migrate DB, restart containers
+#
+# GitHub Secrets cần thiết (Settings → Secrets → Actions):
+#   VPS_HOST             IP hoặc hostname của VPS (118.69.43.35)
+#   VPS_USER             Linux user có quyền run docker (deploy)
+#   VPS_SSH_KEY          Private SSH key (ed25519 hoặc RSA, không có passphrase)
+#   VPS_SSH_PORT         SSH port — mặc định 11422
+#   NEXT_PUBLIC_API_URL  Public API base (vd: https://www.ykhoapasteurdalat.vn/api)
+#   NEXT_PUBLIC_API_ORIGIN  Public origin (vd: https://www.ykhoapasteurdalat.vn)
+#   NEXT_PUBLIC_SITE_URL Canonical SEO URL (vd: https://www.ykhoapasteurdalat.vn)
+#
+# GitHub Variables (Settings → Variables → Actions):
+#   IMAGE_REGISTRY       ghcr.io/your-github-username-or-org
+# ============================================================
+
+name: 🚀 Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip type checks (emergency deploy)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false   # Never cancel a running deploy
+
+env:
+  IMAGE_REGISTRY: ${{ vars.IMAGE_REGISTRY || format('ghcr.io/{0}', github.repository_owner) }}
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # ══════════════════════════════════════════════════════════
+  # JOB 1: TypeScript type checks
+  # ══════════════════════════════════════════════════════════
+  type-check:
+    name: 🔍 Type Check
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-server-${{ hashFiles('server/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-server-
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server deps
+        run: npm ci
+        working-directory: server
+
+      - name: Server — prisma generate
+        run: npx prisma generate --schema=prisma/schema.prisma
+        working-directory: server
+
+      - name: Server — tsc --noEmit
+        run: npx tsc --noEmit
+        working-directory: server
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-client-${{ hashFiles('client/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-client-
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install client deps
+        run: npm install --ignore-scripts
+        working-directory: client
+
+      - name: Client — tsc --noEmit
+        run: npx tsc --noEmit
+        working-directory: client
+
+  # ══════════════════════════════════════════════════════════
+  # JOB 2: Build Docker images → push to GHCR
+  # ══════════════════════════════════════════════════════════
+  build-push:
+    name: 🐳 Build & Push Images
+    runs-on: ubuntu-latest
+    needs: [type-check]
+    if: always() && (needs.type-check.result == 'success' || needs.type-check.result == 'skipped')
+
+    permissions:
+      contents: read
+      packages: write      # Required to push to GHCR
+
+    outputs:
+      version: ${{ steps.version.outputs.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image version (short SHA)
+        id: version
+        run: echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Resolve client public URL build-args
+        id: public-url
+        env:
+          SITE_URL_SECRET: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          API_URL_SECRET: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          API_ORIGIN_SECRET: ${{ secrets.NEXT_PUBLIC_API_ORIGIN }}
+        run: |
+          SITE_URL="${SITE_URL_SECRET:-https://www.ykhoapasteurdalat.vn}"
+          API_ORIGIN="${API_ORIGIN_SECRET:-$SITE_URL}"
+          API_URL="${API_URL_SECRET:-${API_ORIGIN%/}/api}"
+          if [ -z "$SITE_URL" ]; then
+            echo "::error::NEXT_PUBLIC_SITE_URL secret is empty"
+            exit 1
+          fi
+          echo "site_url=$SITE_URL" >> "$GITHUB_OUTPUT"
+          echo "api_origin=$API_ORIGIN" >> "$GITHUB_OUTPUT"
+          echo "api_url=$API_URL" >> "$GITHUB_OUTPUT"
+          echo "Building client with SITE_URL=$SITE_URL"
+
+      # ── Server image ──────────────────────────────────────
+      - name: Build & push — server
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_REGISTRY }}/pasteur-dalat-server:${{ steps.version.outputs.sha }}
+            ${{ env.IMAGE_REGISTRY }}/pasteur-dalat-server:latest
+          cache-from: type=gha,scope=server
+          cache-to:   type=gha,scope=server,mode=max
+          provenance: false
+
+      # ── Client image ──────────────────────────────────────
+      - name: Build & push — client
+        uses: docker/build-push-action@v6
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ steps.public-url.outputs.api_url }}
+            NEXT_PUBLIC_API_ORIGIN=${{ steps.public-url.outputs.api_origin }}
+            NEXT_PUBLIC_SITE_URL=${{ steps.public-url.outputs.site_url }}
+          tags: |
+            ${{ env.IMAGE_REGISTRY }}/pasteur-dalat-client:${{ steps.version.outputs.sha }}
+            ${{ env.IMAGE_REGISTRY }}/pasteur-dalat-client:latest
+          cache-from: type=gha,scope=client
+          cache-to:   type=gha,scope=client,mode=max
+          provenance: false
+
+  # ══════════════════════════════════════════════════════════
+  # JOB 3: Deploy to VPS via SSH
+  # ══════════════════════════════════════════════════════════
+  deploy:
+    name: 🚀 Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: [build-push]
+    permissions:
+      contents: read
+      packages: read    # Cần để docker login GHCR trên VPS
+    environment:
+      name: production
+      url: http://118.69.43.35:8082
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key:      ${{ secrets.VPS_SSH_KEY }}
+          port:     ${{ secrets.VPS_SSH_PORT || 11422 }}
+          timeout:  120s
+          script: |
+            set -euo pipefail
+
+            APP_DIR=/opt/pasteur-dalat
+            APP_VERSION=${{ needs.build-push.outputs.version }}
+            IMAGE_REGISTRY=${{ env.IMAGE_REGISTRY }}
+            REPO_URL=https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/chang2tech/pasteur-dalat.git
+
+            echo "▶ Checking disk usage before deploy..."
+            df -h /
+
+            echo "▶ Cleaning up safe Docker artifacts to free disk..."
+            docker container prune -f || true
+            docker image prune -af || true
+            docker builder prune -af || true
+            docker system prune -af || true
+
+            echo "▶ Docker disk usage after cleanup:"
+            docker system df || true
+
+            # Keep at least ~1.5GB free before git pull/unpack
+            MIN_FREE_KB=1572864
+            FREE_KB=$(df --output=avail / | tail -n1 | tr -d ' ')
+            if [ "$FREE_KB" -lt "$MIN_FREE_KB" ]; then
+              echo "❌ Not enough disk space on VPS after cleanup (need ~1.5GB free)."
+              echo "   SSH vào VPS và chạy: docker system prune -af && sudo journalctl --vacuum-time=7d"
+              df -h /
+              exit 1
+            fi
+
+            echo "▶ Pulling latest config from git..."
+            cd "$APP_DIR"
+            rm -f .git/config.lock
+            git pull "$REPO_URL" main --ff-only
+
+            echo "▶ Syncing public URLs to port 8082..."
+            # Ensure .env exists; fail fast with clear diagnostics if permissions are wrong.
+            if [ ! -f .env ]; then
+              touch .env
+            fi
+            if [ ! -r .env ] || [ ! -w .env ]; then
+              echo "❌ Cannot read/write $APP_DIR/.env (permission denied)."
+              echo "   Fix on VPS: sudo chown $USER:$USER $APP_DIR/.env && chmod 600 $APP_DIR/.env"
+              ls -la .env || true
+              exit 1
+            fi
+
+            if grep -q '^CLIENT_URL=' .env; then
+              sed -i 's|^CLIENT_URL=.*|CLIENT_URL=http://118.69.43.35:8082|' .env
+            else
+              echo 'CLIENT_URL=http://118.69.43.35:8082' >> .env
+            fi
+
+            if grep -q '^CORS_ORIGINS=' .env; then
+              sed -i 's|^CORS_ORIGINS=.*|CORS_ORIGINS=http://118.69.43.35:8082|' .env
+            else
+              echo 'CORS_ORIGINS=http://118.69.43.35:8082' >> .env
+            fi
+
+            if grep -q '^NEXT_PUBLIC_API_URL=' .env; then
+              sed -i 's|^NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://118.69.43.35:8082/api|' .env
+            else
+              echo 'NEXT_PUBLIC_API_URL=http://118.69.43.35:8082/api' >> .env
+            fi
+
+            if grep -q '^COOKIE_SECURE=' .env; then
+              sed -i 's|^COOKIE_SECURE=.*|COOKIE_SECURE=false|' .env
+            else
+              echo 'COOKIE_SECURE=false' >> .env
+            fi
+
+            if grep -q '^ALLOW_INSECURE_COOKIES=' .env; then
+              sed -i 's|^ALLOW_INSECURE_COOKIES=.*|ALLOW_INSECURE_COOKIES=true|' .env
+            else
+              echo 'ALLOW_INSECURE_COOKIES=true' >> .env
+            fi
+
+            if grep -q '^COOKIE_SAME_SITE=' .env; then
+              sed -i 's|^COOKIE_SAME_SITE=.*|COOKIE_SAME_SITE=lax|' .env
+            else
+              echo 'COOKIE_SAME_SITE=lax' >> .env
+            fi
+
+            echo "▶ Logging in to GHCR..."
+            echo "${{ secrets.GITHUB_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            echo "▶ Pulling new images (version: $APP_VERSION)..."
+            APP_VERSION="$APP_VERSION" IMAGE_REGISTRY="$IMAGE_REGISTRY" \
+              docker compose -f docker-compose.prod.yml pull server client
+
+            echo "▶ Running database migrations..."
+            APP_VERSION="$APP_VERSION" IMAGE_REGISTRY="$IMAGE_REGISTRY" \
+              docker compose -f docker-compose.prod.yml run --rm migrate
+
+            echo "▶ Restarting services (zero-downtime)..."
+
+            APP_VERSION="$APP_VERSION" IMAGE_REGISTRY="$IMAGE_REGISTRY" \
+              docker compose -f docker-compose.prod.yml up -d \
+                --no-deps --remove-orphans \
+                server client nginx
+
+            echo "▶ Recreating nginx to refresh upstream DNS after container recreate..."
+            APP_VERSION="$APP_VERSION" IMAGE_REGISTRY="$IMAGE_REGISTRY" \
+              docker compose -f docker-compose.prod.yml up -d --force-recreate nginx
+
+            echo "▶ Waiting for server health check..."
+            for i in $(seq 1 12); do
+              if docker exec pasteur_dalat_server \
+                  wget -qO- http://127.0.0.1:4102/api/health > /dev/null 2>&1; then
+                echo "✅ Server healthy"
+                break
+              fi
+              if [ "$i" -eq 12 ]; then
+                echo "❌ Health check failed after 60s"
+                docker compose -f docker-compose.prod.yml logs --tail=50 server
+                exit 1
+              fi
+              echo "  Waiting... ($i/12)"
+              sleep 5
+            done
+
+            echo "▶ Pruning old images..."
+            docker image prune -f
+
+            echo "✅ Deploy complete — version: $APP_VERSION"

@@ -1,0 +1,267 @@
+/* myFUTURE — overrides & Next.js compatibility */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-be-vietnam-pro), 'Be Vietnam Pro', sans-serif;
+}
+
+/* Layout offset — giống web gốc */
+.layout-menu-fixed .layout-navbar-full .layout-menu,
+.layout-page {
+  padding-top: 64px !important;
+}
+
+.content-wrapper {
+  padding-bottom: 0 !important;
+}
+
+/* Sidebar layout + pinned footer */
+#layout-menu.layout-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+#layout-menu .profile-card {
+  height: 100%;
+  width: 100%;
+  align-items: stretch !important;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#layout-menu .menu-inner {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+}
+
+#layout-menu .menu-footer-pin {
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.future-mind-card {
+  background-image: url('/images/bg-future-mind.jpg') !important;
+}
+
+/* Sidebar menu hover & active — khớp web gốc */
+#layout-menu.layout-menu {
+  border-right: 1px solid #eef0f3;
+  box-shadow: none;
+}
+
+#layout-menu .menu-inner {
+  padding: 6px 0 10px !important;
+  margin-top: 0 !important;
+}
+
+#layout-menu .menu-item > .menu-link {
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #4b5563;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: none;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+#layout-menu .menu-item > .menu-link:hover {
+  background: #f9fafb;
+  color: #111827;
+  transform: translateX(4px);
+}
+
+#layout-menu .menu-item.active > .menu-link {
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
+}
+
+#layout-menu .menu-item.active > .menu-link .menu-icon {
+  color: #4338ca;
+}
+
+#layout-menu .menu-icon {
+  font-size: 19px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#layout-menu .menu-item > .menu-link:hover .menu-icon {
+  transform: scale(1.1);
+  color: #4f46e5;
+}
+
+#layout-menu .menu-item.active > .menu-link:hover {
+  transform: none;
+}
+
+#layout-menu .menu-item.active > .menu-link:hover .menu-icon {
+  transform: none;
+}
+
+.mf-owl-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mf-owl-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mf-owl-stage {
+  display: flex;
+  width: max-content;
+}
+
+/* Owl nav — căn giữa theo chiều dọc (theme gốc dùng translateY(-100%) gây lệch lên) */
+.owl-carousel .owl-nav button {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.box_quick_access_news .mf-owl-stage {
+  align-items: flex-start;
+}
+
+.box_quick_access_news .owl-item {
+  align-self: flex-start;
+}
+
+.box_quick_access_news .qa-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.box_quick_access_news .quick-access-card {
+  width: 100%;
+  height: auto;
+}
+
+.side-news-img img,
+.featured-img-wrap img,
+.project-thumb,
+.company-logo {
+  object-fit: cover;
+}
+
+.topic-news-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Pro overlay — icon khóa nền tròn (giống web gốc) */
+.upgrade_pro .content_upgrade .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  background: #fff;
+  border-radius: 50%;
+  font-size: 30px;
+  color: var(--red, #c8102e);
+  margin-bottom: 5px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.upgrade_pro .content_upgrade .icon i {
+  display: block;
+  line-height: 1;
+}
+
+#new-recommended .owl-stage {
+  display: flex;
+}
+
+#new-recommended .owl-item {
+  display: flex;
+  height: auto !important;
+}
+
+#new-recommended .card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  max-height: 140px;
+}
+
+#new-recommended .card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+#new-recommended .card:hover .card-img-wrap img {
+  transform: scale(1.06);
+}
+
+#new-recommended .badge-category {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+#new-recommended .card {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+#new-recommended .card:hover {
+  transform: translateY(-6px);
+}
+
+#new-recommended .card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+#new-recommended .meta-info {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+#new-recommended .owl-item:nth-child(4n + 1) .badge-category {
+  background-color: #7c3aed;
+}
+
+#new-recommended .owl-item:nth-child(4n + 2) .badge-category {
+  background-color: #16a34a;
+}
+
+#new-recommended .owl-item:nth-child(4n + 3) .badge-category {
+  background-color: #0ea5e9;
+}
+
+#new-recommended .owl-item:nth-child(4n + 4) .badge-category {
+  background-color: #ea580c;
+}

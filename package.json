@@ -1,0 +1,21 @@
+{
+  "name": "my-future",
+  "version": "1.0.0",
+  "private": true,
+  "description": "myFUTURE — Nền tảng bất động sản toàn quốc",
+  "scripts": {
+    "dev": "docker compose up",
+    "dev:build": "docker compose up --build",
+    "dev:down": "docker compose down",
+    "dev:logs": "docker compose logs -f",
+    "db:up": "docker compose up postgres redis -d",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:seed": "cd server && npx prisma db seed",
+    "db:studio": "cd server && npx prisma studio",
+    "server:dev": "cd server && npm run start:dev",
+    "client:dev": "cd client && npm run dev",
+    "lint": "npm run lint --prefix server && npm run lint --prefix client",
+    "typecheck": "cd server && npx tsc --noEmit && cd ../client && npx tsc --noEmit",
+    "docker:build": "docker compose build"
+  }
+}

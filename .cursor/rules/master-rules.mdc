@@ -1,0 +1,212 @@
+---
+alwaysApply: true
+---
+
+# Master Coding Rules
+## Next.js + NestJS + Prisma + Redis 
+
+- **Bắt buộc tuân thủ toàn bộ Coding Rules trong tài liệu này.**
+- Chỉ được phép khác hoặc thay đổi nếu có **lý do kỹ thuật rõ ràng và giải pháp đó tốt hơn hoặc đúng chuẩn hơn**.
+- Không tự ý bỏ qua rule nếu không có justification hợp lý.
+- Code phải chất lượng cao, tối ưu, dễ đọc, maintainable, và tuân theo best practices của framework và ngôn ngữ lập trình.
+- Code phải tuân thủ design pattern và architecture hiệu quả nhất cho từng use case cụ thể.
+- Code phải clean và tuân thủ SOLID principles, DRY, KISS, YAGNI.
+- Luôn luôn ưu tiên sử dụng **thư viện đã được kiểm chứng** thay vì tự viết lại từ đầu.
+- Luôn luôn tuân thủ **security best practices** để bảo vệ ứng dụng và dữ liệu người dùng.
+- Đảm bảo tất cả loại tấn công "SQL Injection (SQLi), Cross-Site Scripting (XSS), Cross-Site Request Forgery (CSRF), DDoS, Brute Force, Man-in-the-Middle (MITM), Broken Authentication, File Upload Attack, Remote Code Execution (RCE), Path Traversal, Command Injection, Session Hijacking, Clickjacking, Malware/Ransomware, Phishing, SSRF, JWT Attack, Privilege Escalation, Zero-Day Exploit,..." đều được phòng tránh và bảo vệ đầy đủ.
+- Luôn luôn tuân thủ **performance best practices** để đảm bảo ứng dụng nhanh và mượt mà.
+- Luôn luôn tuân thủ **SEO best practices** cho các page public.
+- Luôn luôn tuân thủ **accessibility best practices** để đảm bảo ứng dụng có thể sử dụng được cho tất cả mọi người.
+- Luôn luôn tuân thủ **code style** đã thống nhất cho toàn dự án.
+- Luôn responsive và mobile-first trong thiết kế UI. layout phải linh hoạt và đẹp trên mọi kích thước màn hình.
+- Không để file nào có kích thước quá lớn (>250 dòng), phải tách nhỏ nếu cần.
+
+---
+## 0. Fix & Quality Enforcement
+- Trước khi hoàn thành task, **phải kiểm tra và fix toàn bộ lỗi nếu có**. luôn luôn chạy "npm run lint -- --fix" để tự động sửa lỗi định dạng và lint. và "npx tsc --noEmit" để kiểm tra lỗi TypeScript. 
+
+### Không được để xảy ra
+- TypeScript errors 
+- ESLint warnings
+- Import thiếu hoặc unused imports
+- Prisma type mismatch
+- Undefined variable / null access
+### Yêu cầu bắt buộc
+- Code phải **compile và chạy được ngay**
+- Nếu refactor code → **cập nhật lại type, import, test và cache logic liên quan**.
+- Nếu thay đổi API → **đồng bộ DTO, service, repository và client call**
+- Đảm bảo **không phá vỡ chức năng cũ (no regression)**.
+### Verification Rules
+- `tsc --noEmit` → **0 error**
+- `eslint` → **0 warning**
+- `prisma generate` → **success**
+
+
+## 1. Architecture
+
+- Structure NestJS: `module → controller → service → repository`, business logic không được viết trong controller.
+- Next.js: **Server Components mặc định**, chỉ `"use client"` khi cần state/event, `"use server"` cho mutation.
+- Tách layer rõ ràng: **Presentation / Application / Domain / Infrastructure**.
+- Sử dụng **Dependency Injection** đúng chuẩn NestJS.
+- Max file size ~250 dòng → tách nhỏ nếu cần.
+
+---
+
+## 3. TypeScript Strict
+
+- `"strict": true`, tuyệt đối không dùng `any`.
+- DTO type-safe cho request/response, Prisma types từ `@prisma/client`.
+- Validate input bằng **Zod** (Next.js) hoặc **class-validator** (NestJS).
+- Env vars qua `env.ts` với `z.object({})`, không access `process.env` trực tiếp.
+- Ưu tiên `enum` thay string hardcode, không casting tùy tiện.
+
+---
+
+## 4. Security
+
+- **Auth:** JWT + httpOnly cookie, refresh token rotation, rate-limit login. Không dùng localStorage.
+- **Password:** Hash bằng `bcrypt`.
+- **Input:** Server-side validation bắt buộc, sanitize HTML với DOMPurify.
+- **SQL:** Prisma parameterized queries, không concat query string.
+- **Secrets:** `.env`, không commit. Phân tách dev/staging/production.
+- **CORS:** Whitelist domain, không wildcard.
+- **CSRF:** Token verify per POST, `SameSite=Strict` cookie.
+- **XSS:** Escape tất cả dữ liệu render ra UI, không render HTML từ user input.
+- Không expose stack trace production, không log password/token.
+
+---
+
+## 5. Data Fetching & Caching
+
+- Fetch ở Server Components khi có thể, tránh gọi API từ client không cần thiết.
+- Dùng `'use cache'` cho fetch, `'use cache: private'` cho user data.
+- **Redis:** cache, session, rate limit, queue. TTL bắt buộc. Không cache dữ liệu nhạy cảm.
+- Invalidate cache khi update/delete DB liên quan.
+
+---
+
+## 6. Database
+
+- Repository pattern, không query trong controller.
+- Migration bắt buộc khi đổi schema.
+- Tránh **N+1 query**, chỉ select field cần thiết.
+
+---
+
+## 7. API Standards
+
+- Endpoint chuẩn REST: `GET /users`, `POST /users`, `PATCH /users/:id`, `DELETE /users/:id`.
+- HTTP status đúng chuẩn. Pagination bắt buộc với list lớn.
+- Response format thống nhất:
+  ```json
+  { "success": true, "data": {}, "message": "" }
+  ```
+- Rate limiting cho public API. Log request bất thường.
+
+---
+
+## 8. Error Handling
+
+- NestJS: dùng exception chuẩn `BadRequestException`, `UnauthorizedException`, `NotFoundException`.
+- Không `throw new Error()` trong controller, dùng **Global Exception Filter**.
+- Không bỏ qua error hoặc catch rỗng.
+- UI: không để "blank screen", hiển thị thông báo lỗi rõ ràng và dễ hiểu.
+
+---
+
+## 9. UI/UX
+
+- Design system thống nhất: **shadcn/ui + Tailwind**, spacing 4px/8px grid.
+- **Giao diện phải thống nhất toàn hệ thống**: component, spacing, typography, color, button style phải giống nhau giữa các page.
+- Ưu tiên **tái sử dụng component chung** thay vì viết UI mới cho mỗi page.
+- **Tận dụng tối đa khả năng của Next.js và hệ sinh thái thư viện** để tăng hiệu suất và tốc độ phát triển (ví dụ: `next/image`, `next/link`, `next/dynamic`, UI libraries, form/validation libraries).
+- **Mobile-first**, responsive theo breakpoint với Tailwind prefixes.
+- Mọi action phải có feedback: loading, success, error, empty state.
+- Button có trạng thái `hover`, `focus`, `disabled`,...
+- Hiển thị **skeleton** khi fetch data, không block UI khi gọi API.
+- Accessibility: keyboard navigable, ARIA labels, color contrast WCAG AA.
+- Max 2 fonts, 3–5 colors, semantic HTML đúng chuẩn. Màu không bị cross platform inconsistency giữa các nền tảng.
+
+---
+
+## 10. Performance
+
+- Server Components để giảm JS gửi xuống client.
+- `next/image` cho tất cả hình ảnh (WebP/AVIF, priority, sizes).
+- Lazy load component nặng với `next/dynamic`.
+- Tránh N+1, tránh query lớn trong request lifecycle.
+- Tránh layout shift, luôn định nghĩa kích thước cho image/media.
+- Tối ưu LCP, CLS, INP.
+
+---
+
+## 11. Background Jobs
+
+- Job nặng chạy qua **queue (Bull/BullMQ)**, không xử lý trong request lifecycle.
+- Worker riêng cho email, notification, cron.
+
+---
+
+## 12. SEO
+
+- Mỗi page có `title` (<60 ký tự), `description` (~150 ký tự) thông qua `generateMetadata()`.
+- Chỉ 1 thẻ `H1` mỗi page, semantic HTML đúng chuẩn.
+- URL ngắn gọn, có keyword, tránh query string dài.
+- Open Graph + Twitter Card metadata đầy đủ (`og:title`, `og:description`, `og:image`).
+- `sitemap.ts` và `robots.ts` trong App Router để generate `sitemap.xml` và `robots.txt`.
+- `robots.txt` block `/admin` và `/dashboard`.
+- Canonical URL cho dynamic routes và pagination.
+- Structured data (`JSON-LD`) khi cần cho article/product/page.
+
+---
+
+## 13. Clean Code
+
+- Naming: `camelCase` biến, `PascalCase` class/component, `UPPER_CASE` constant.
+- Tuân thủ **SOLID principles** khi thiết kế class và service.
+- Mỗi function một nhiệm vụ duy nhất, tránh duplicate logic.
+- Không hardcode giá trị → dùng constant hoặc config.
+- Không comment những thứ code đã thể hiện rõ.
+- UI, business logic và data access phải tách biệt.
+- ESLint + Prettier: **zero warning**.
+
+---
+
+## 14. Logging & Monitoring
+
+- Log: request, response time, error, authentication events.
+- Không log password, token, dữ liệu nhạy cảm.
+- Production: monitoring Sentry/DataDog, health check `/health`, per-tenant metrics.
+- Audit log phải include `userId`.
+
+---
+
+## 15. Library Usage
+
+- Ưu tiên sử dụng **thư viện đã được kiểm chứng (battle-tested)** thay vì tự viết lại từ đầu.
+- Không reinvent the wheel cho các chức năng phổ biến: validation, auth, date, form, UI, caching.
+- Chỉ thêm dependency khi:
+  - Thư viện **ổn định và phổ biến**
+  - Có **maintenance tốt**
+  - Giảm đáng kể độ phức tạp code
+- Tránh thêm thư viện cho logic đơn giản có thể viết bằng native code.
+- Kiểm tra **bundle size** và **security vulnerability** trước khi thêm package.
+- Không sử dụng thư viện **deprecated hoặc ít maintain**.
+
+## 16.Documentation & Research Rule
+- Nếu gặp vấn đề kỹ thuật **khó hoặc không thể giải quyết**, phải:
+  - Tra cứu **documentation chính thức của framework/thư viện** trước (Next.js, NestJS, Prisma, Redis,...).
+  - Tìm giải pháp từ **nguồn đáng tin cậy trên web** (official docs, RFC, GitHub issues, technical blogs).
+- Không được đoán mò hoặc tự triển khai giải pháp **không đúng chuẩn framework**.
+- Ưu tiên giải pháp **theo đúng best practices được khuyến nghị trong documentation chính thức**.
+
+## 17. Algorithm & Solution Selection
+
+Trước khi viết business logic, phải chọn **thuật toán và giải pháp kỹ thuật tối ưu**.
+
+- Ưu tiên **độ phức tạp thấp** (`O(n log n)` hoặc tốt hơn), tránh `O(n²)` với dataset lớn.
+- Chọn **data structure phù hợp** (`Map`, `Set`, index lookup) thay vì loop nhiều lần.
+- Ưu tiên xử lý ở **database layer** (index, join, aggregation) thay vì xử lý toàn bộ ở application.
+- Tránh **N+1 query** và **full table scan**.
+- Computation nặng → **cache hoặc đưa vào queue/worker**.
+- Khi có nhiều cách → ưu tiên: **framework feature → database → library → custom code**.
