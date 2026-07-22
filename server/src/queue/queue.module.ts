@@ -1,8 +1,9 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NEWS_QUEUE } from './processors/news.processor';
 import { NewsProcessor } from './processors/news.processor';
+import { NewsQueueService } from './news-queue.service';
+import { NEWS_QUEUE } from './news-queue.types';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { NewsProcessor } from './processors/news.processor';
     }),
     BullModule.registerQueue({ name: NEWS_QUEUE }),
   ],
-  providers: [NewsProcessor],
-  exports: [BullModule],
+  providers: [NewsProcessor, NewsQueueService],
+  exports: [BullModule, NewsQueueService],
 })
 export class QueueModule {}

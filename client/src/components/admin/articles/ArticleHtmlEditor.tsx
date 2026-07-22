@@ -13,29 +13,39 @@ interface ArticleHtmlEditorProps {
 
 interface ToolbarAction {
   cmd: string;
-  icon: string;
+  iconClass: string;
   label: string;
   arg?: string;
 }
 
 const TOOLBAR_GROUPS: ToolbarAction[][] = [
   [
-    { cmd: 'bold', icon: 'bx-bold', label: 'In đậm' },
-    { cmd: 'italic', icon: 'bx-italic', label: 'In nghiêng' },
-    { cmd: 'underline', icon: 'bx-underline', label: 'Gạch chân' },
+    { cmd: 'bold', iconClass: 'bx bx-bold', label: 'In đậm' },
+    { cmd: 'italic', iconClass: 'bx bx-italic', label: 'In nghiêng' },
+    { cmd: 'underline', iconClass: 'bx bx-underline', label: 'Gạch chân' },
   ],
   [
-    { cmd: 'formatBlock', icon: 'bx-heading', label: 'Tiêu đề H2', arg: 'h2' },
-    { cmd: 'formatBlock', icon: 'bx-font', label: 'Tiêu đề H3', arg: 'h3' },
+    { cmd: 'justifyLeft', iconClass: 'bx bx-align-left', label: 'Căn trái' },
+    { cmd: 'justifyCenter', iconClass: 'bx bx-align-middle', label: 'Căn giữa' },
+    { cmd: 'justifyRight', iconClass: 'bx bx-align-right', label: 'Căn phải' },
   ],
   [
-    { cmd: 'insertUnorderedList', icon: 'bx-list-ul', label: 'Danh sách' },
-    { cmd: 'insertOrderedList', icon: 'bx-list-ol', label: 'Danh sách số' },
+    { cmd: 'formatBlock', iconClass: 'bx bx-heading', label: 'Tiêu đề H2', arg: 'h2' },
+    { cmd: 'formatBlock', iconClass: 'bx bx-font', label: 'Tiêu đề H3', arg: 'h3' },
   ],
   [
-    { cmd: 'formatBlock', icon: 'bx-quote-left', label: 'Trích dẫn', arg: 'blockquote' },
-    { cmd: 'createLink', icon: 'bx-link', label: 'Chèn liên kết' },
-    { cmd: 'unlink', icon: 'bx-unlink', label: 'Bỏ liên kết' },
+    { cmd: 'insertUnorderedList', iconClass: 'bx bx-list-ul', label: 'Danh sách' },
+    { cmd: 'insertOrderedList', iconClass: 'bx bx-list-ol', label: 'Danh sách số' },
+  ],
+  [
+    {
+      cmd: 'formatBlock',
+      iconClass: 'bxs bxs-quote-alt-left',
+      label: 'Trích dẫn',
+      arg: 'blockquote',
+    },
+    { cmd: 'createLink', iconClass: 'bx bx-link', label: 'Chèn liên kết' },
+    { cmd: 'unlink', iconClass: 'bx bx-unlink', label: 'Bỏ liên kết' },
   ],
 ];
 
@@ -131,7 +141,7 @@ export function ArticleHtmlEditor({
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => runCommand(action.cmd, action.arg)}
                 >
-                  <i className={`bx ${action.icon}`} aria-hidden />
+                  <i className={action.iconClass} aria-hidden />
                 </button>
               ))}
             </div>

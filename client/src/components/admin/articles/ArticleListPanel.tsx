@@ -10,6 +10,7 @@ import { revalidateNewsCache } from '@/lib/actions/revalidate-news';
 import type { AdminArticle } from '@/lib/api/admin';
 import { deleteAdminArticle, getAdminArticles } from '@/lib/api/admin';
 import { getArticleHref } from '@/lib/news/article-url';
+import { formatAdminUpdatedAt } from '@/lib/utils/admin-date';
 
 interface ArticleListPanelProps {
   search: string;
@@ -25,6 +26,20 @@ const STATUS_LABELS: Record<AdminArticle['status'], string> = {
 
 function formatViews(value: number): string {
   return value.toLocaleString('vi-VN');
+}
+
+function UpdatedAtCell({ value }: { value: string }) {
+  const updated = formatAdminUpdatedAt(value);
+
+  return (
+    <time
+      className="admin-table__date"
+      dateTime={value}
+      title={updated.title}
+    >
+      {updated.label}
+    </time>
+  );
 }
 
 export function ArticleListPanel({
@@ -81,7 +96,7 @@ export function ArticleListPanel({
   const showCategoryColumn = !categoryId;
   const showOrderColumn = Boolean(categoryId);
   const tableColumnCount =
-    5 + (showCategoryColumn ? 1 : 0) + (showOrderColumn ? 1 : 0);
+    6 + (showCategoryColumn ? 1 : 0) + (showOrderColumn ? 1 : 0);
 
   return (
     <div className="admin-articles-panel">
@@ -105,6 +120,7 @@ export function ArticleListPanel({
                   <th className="admin-table__col-order">Thứ tự</th>
                 )}
                 <th className="admin-table__col-status">Trạng thái</th>
+                <th className="admin-table__col-date">Cập nhật</th>
                 <th className="admin-table__col-actions text-end">Thao tác</th>
               </tr>
             </thead>
@@ -183,6 +199,9 @@ export function ArticleListPanel({
                       >
                         {STATUS_LABELS[article.status]}
                       </span>
+                    </td>
+                    <td className="admin-table__col-date">
+                      <UpdatedAtCell value={article.updatedAt} />
                     </td>
                     <td className="admin-table__col-actions text-end">
                       <div className="admin-row-actions">

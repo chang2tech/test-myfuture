@@ -30,7 +30,7 @@ export function ArticleDetailSidebar({
 }: ArticleDetailSidebarProps) {
   const categoryItems =
     categories.length > 0
-      ? categories.filter((item) => item.slug !== 'toan-canh')
+      ? categories
       : CATEGORY_ROUTE_CONFIGS.map((item) => ({
           id: item.slug,
           slug: item.slug,

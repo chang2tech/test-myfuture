@@ -1,6 +1,6 @@
 FROM node:22-alpine AS base
 WORKDIR /app
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl wget
 
 FROM base AS deps
 COPY package*.json ./
@@ -27,4 +27,6 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
 RUN npx prisma generate
 EXPOSE 4721
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:4721/api/health || exit 1
 CMD ["node", "dist/main.js"]

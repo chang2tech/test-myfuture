@@ -2,7 +2,7 @@
 
 import { SmartLink } from '@/components/shared/SmartLink';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { NEWS_CATEGORY_TABS } from '@/constants/news/categories';
+import { BAN_TIN_OVERVIEW_TAB, NEWS_CATEGORY_TABS } from '@/constants/news/categories';
 import { getCategoryRouteHref } from '@/constants/news/category-routes';
 import { useHorizontalDragScroll } from '@/hooks/shared/useHorizontalDragScroll';
 
@@ -59,6 +59,15 @@ export function NewsCategoryTabs({ activeCategory }: NewsCategoryTabsProps) {
           dragScrollProps.onPointerDown(event);
         }}
       >
+        <SmartLink
+          href={BAN_TIN_OVERVIEW_TAB.href}
+          className={`tab-link nav-link d-flex align-items-center gap-2 px-3 py-2 rounded-2 text-secondary small${
+            activeCategory === '' ? ' active' : ''
+          }`}
+        >
+          <i className={`bx ${BAN_TIN_OVERVIEW_TAB.icon}`} />
+          {BAN_TIN_OVERVIEW_TAB.name}
+        </SmartLink>
         {NEWS_CATEGORY_TABS.map((tab) => {
           const isActive = activeCategory === tab.slug;
 

@@ -16,7 +16,7 @@ interface TopicNewsSectionProps {
 }
 
 export function TopicNewsSection({ categories }: TopicNewsSectionProps) {
-  const topics = categories.filter((c) => c.slug !== 'toan-canh');
+  const topics = categories;
 
   return (
     <div className="mb-4 box_topic_news">

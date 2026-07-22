@@ -40,13 +40,12 @@ interface CategoryScrapeResult {
 }
 
 const categories = [
-  { slug: 'toan-canh', name: 'Toàn cảnh', sortOrder: 1 },
-  { slug: 'phap-ly-du-an', name: 'Pháp lý dự án', sortOrder: 2 },
-  { slug: 'quy-hoach-ha-tang', name: 'Quy hoạch - Hạ tầng', sortOrder: 3 },
-  { slug: 'lai-suat-tai-chinh', name: 'Lãi suất - Tài chính', sortOrder: 4 },
-  { slug: 'thi-truong-gia-ca', name: 'Thị trường - Giá cả', sortOrder: 5 },
-  { slug: 'dau-tu-dong-tien', name: 'Đầu tư - Dòng tiền', sortOrder: 6 },
-  { slug: 'cho-thue', name: 'Cho thuê', sortOrder: 7 },
+  { slug: 'phap-ly-du-an', name: 'Pháp lý dự án', sortOrder: 1 },
+  { slug: 'quy-hoach-ha-tang', name: 'Quy hoạch - Hạ tầng', sortOrder: 2 },
+  { slug: 'lai-suat-tai-chinh', name: 'Lãi suất - Tài chính', sortOrder: 3 },
+  { slug: 'thi-truong-gia-ca', name: 'Thị trường - Giá cả', sortOrder: 4 },
+  { slug: 'dau-tu-dong-tien', name: 'Đầu tư - Dòng tiền', sortOrder: 5 },
+  { slug: 'cho-thue', name: 'Cho thuê', sortOrder: 6 },
 ];
 
 const projects = [

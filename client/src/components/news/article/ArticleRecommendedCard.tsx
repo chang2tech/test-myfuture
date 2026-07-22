@@ -1,5 +1,6 @@
 import { SmartLink } from '@/components/shared/SmartLink';
 import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
+import { getCategoryBadgeColor } from '@/constants/news/categories';
 import { ASSETS } from '@/constants/layout/assets';
 import { formatArticleDateSlash } from '@/lib/utils/article-date';
 import { getArticleHref } from '@/lib/news/article-url';
@@ -15,17 +16,19 @@ export function ArticleRecommendedCard({ article }: ArticleRecommendedCardProps)
       <div className="card h-100 d-flex flex-column">
         <SmartLink
           href={getArticleHref(article.category.slug, article.slug)}
-          className="card-img-wrap d-block flex-shrink-0"
+          className="card-img-wrap position-relative d-block flex-shrink-0"
         >
           <ImageWithSkeleton
-            layout="aspect"
-            aspectRatio="3/2"
+            layout="fill"
             src={article.coverImage ?? ASSETS.noImage}
             alt={article.title}
             sizes="(max-width: 640px) 50vw, 25vw"
             imageClassName="object-cover"
           />
-          <span className="badge-category text-white limit_1line">
+          <span
+            className="badge-category text-white limit_1line"
+            style={{ backgroundColor: getCategoryBadgeColor(article.category.slug) }}
+          >
             {article.category.name}
           </span>
         </SmartLink>

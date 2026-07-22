@@ -55,7 +55,6 @@ export const CATEGORY_ROUTE_BY_SLUG = Object.fromEntries(
 export const CATEGORY_PAGE_SIZE = 10;
 
 export function getCategoryRouteHref(slug: string): string {
-  if (slug === 'toan-canh') return '/ban-tin';
   const config = CATEGORY_ROUTE_BY_SLUG[slug];
   return config ? `/ban-tin/${config.routeId}` : '/ban-tin';
 }

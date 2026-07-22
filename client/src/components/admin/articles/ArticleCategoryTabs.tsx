@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import type { AdminCategory } from '@/lib/api/admin';
 import { getAdminCategories } from '@/lib/api/admin';
-import { filterAdminCategories } from '@/lib/admin/filter-categories';
 
 interface ArticleCategoryTabsProps {
   activeCategoryId: string;
@@ -21,7 +20,7 @@ export function ArticleCategoryTabs({
     let active = true;
     getAdminCategories()
       .then((items) => {
-        if (active) setCategories(filterAdminCategories(items));
+        if (active) setCategories(items);
       })
       .finally(() => {
         if (active) setLoading(false);

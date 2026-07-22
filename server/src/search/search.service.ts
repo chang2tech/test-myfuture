@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CACHE_KEYS, CACHE_TTL } from '../redis/redis.constants';
+import { CacheService } from '../redis/cache.service';
+import { RateLimitService } from '../redis/rate-limit.service';
 import { SearchRepository } from './search.repository';
 import { buildArticleSnippet } from './search-snippet.util';
 
@@ -6,9 +9,26 @@ const POPULAR_FALLBACK = ['Vinhomes Ocean Park', 'MEL', 'ParkLand', 'MGC'];
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly repository: SearchRepository) {}
+  constructor(
+    private readonly repository: SearchRepository,
+    private readonly cacheService: CacheService,
+    private readonly rateLimit: RateLimitService,
+  ) {}
 
-  async searchPublic(query: string, limit = 10) {
+  async searchPublic(query: string, limit = 10, clientIp = 'unknown') {
+    const allowed = await this.rateLimit.consume(
+      `ratelimit:search:${clientIp}`,
+      60,
+      60,
+    );
+
+    if (!allowed) {
+      throw new HttpException(
+        'Quá nhiều yêu cầu tìm kiếm. Vui lòng thử lại sau.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
     const trimmed = query.trim();
     const take = Math.min(Math.max(limit, 1), 20);
 
@@ -96,23 +116,29 @@ export class SearchService {
     };
   }
 
-  private async getPopularTerms() {
-    const [projects, articles] = await this.repository.findPopularTerms(4);
-    const terms = [
-      ...projects.map((project) => project.name),
-      ...articles.map((article) => article.title),
-    ];
+  private getPopularTerms() {
+    return this.cacheService.getOrSet(
+      CACHE_KEYS.searchPopular(),
+      CACHE_TTL.SEARCH_POPULAR,
+      async () => {
+        const [projects, articles] = await this.repository.findPopularTerms(4);
+        const terms = [
+          ...projects.map((project) => project.name),
+          ...articles.map((article) => article.title),
+        ];
 
-    const unique = [
-      ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
-    ];
-    if (unique.length >= 4) {
-      return unique.slice(0, 4);
-    }
+        const unique = [
+          ...new Set(terms.map((term) => term.trim()).filter(Boolean)),
+        ];
+        if (unique.length >= 4) {
+          return unique.slice(0, 4);
+        }
 
-    return [
-      ...unique,
-      ...POPULAR_FALLBACK.filter((term) => !unique.includes(term)),
-    ].slice(0, 4);
+        return [
+          ...unique,
+          ...POPULAR_FALLBACK.filter((term) => !unique.includes(term)),
+        ].slice(0, 4);
+      },
+    );
   }
 }

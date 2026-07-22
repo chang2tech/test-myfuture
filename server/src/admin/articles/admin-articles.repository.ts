@@ -25,8 +25,9 @@ export class AdminArticlesRepository {
       query.search,
     );
 
-    const orderBy: Prisma.NewsArticleOrderByWithRelationInput[] =
-      query.categoryId
+    const orderBy: Prisma.NewsArticleOrderByWithRelationInput[] = query.search
+      ? [{ updatedAt: 'desc' }]
+      : query.categoryId
         ? [{ categorySortOrder: 'asc' }, { publishedAt: 'desc' }]
         : [{ updatedAt: 'desc' }];
 

@@ -92,7 +92,7 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
 
   const containerClassName = cn(
     'overflow-hidden bg-[#ececec]',
-    resolvedLayout === 'fill' && 'absolute inset-0 h-full w-full',
+    resolvedLayout === 'fill' && 'relative h-full w-full',
     resolvedLayout === 'aspect' &&
       cn(
         'relative w-full',
@@ -143,7 +143,7 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
           fill
           sizes={sizes}
           priority={priority}
-          className={cn('relative z-[1] object-cover', imageClassName)}
+          className={cn('z-[1] object-cover', imageClassName)}
           style={revealStyle}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}

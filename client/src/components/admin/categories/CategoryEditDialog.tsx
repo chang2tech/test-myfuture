@@ -129,7 +129,7 @@ export function CategoryEditDialog({
                 id="category-slug"
                 className="form-control"
                 value={slug}
-                placeholder="vd: toan-canh-thi-truong"
+                placeholder="vd: thi-truong-bat-dong-san"
                 onChange={(event) => {
                   setSlugTouched(true);
                   setSlug(slugify(event.target.value));

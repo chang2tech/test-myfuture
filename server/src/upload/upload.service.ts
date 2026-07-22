@@ -3,6 +3,7 @@ import { extname, join } from 'node:path';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
+import type { UploadedImageFile } from '../common/types/uploaded-file.type';
 import { getUploadDirectory, UPLOAD_PUBLIC_BASE_PATH } from './upload.paths';
 
 const ALLOWED_MIME = new Set([
@@ -20,7 +21,7 @@ export class UploadService {
     return getUploadDirectory(this.config);
   }
 
-  async saveImage(file: Express.Multer.File) {
+  async saveImage(file: UploadedImageFile) {
     if (!file) {
       throw new BadRequestException('Không có file được tải lên');
     }

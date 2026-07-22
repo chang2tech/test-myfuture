@@ -16,7 +16,6 @@ import {
   updateAdminArticle,
 } from '@/lib/api/admin';
 import { getArticleHref } from '@/lib/news/article-url';
-import { filterAdminCategories } from '@/lib/admin/filter-categories';
 import { revalidateNewsCache } from '@/lib/actions/revalidate-news';
 import { slugify } from '@/lib/utils/slugify';
 
@@ -84,11 +83,8 @@ export function ArticleEditorPanel({
   useEffect(() => {
     getAdminCategories()
       .then((items) => {
-        const editableCategories = filterAdminCategories(items);
-        setCategories(editableCategories);
-        setForm(
-          buildFormState(article, editableCategories[0]?.id ?? ''),
-        );
+        setCategories(items);
+        setForm(buildFormState(article, items[0]?.id ?? ''));
         setReady(true);
       })
       .catch(() => toast.error('Không tải được danh mục'));
@@ -112,6 +108,26 @@ export function ArticleEditorPanel({
   }
 
   async function handleSave() {
+    const trimmedTitle = form.title.trim();
+    const trimmedSlug = form.slug.trim();
+
+    if (trimmedTitle.length < 3) {
+      toast.error('Tiêu đề phải có ít nhất 3 ký tự');
+      return;
+    }
+    if (trimmedSlug.length < 3) {
+      toast.error('Slug phải có ít nhất 3 ký tự');
+      return;
+    }
+    if (!form.categoryId) {
+      toast.error('Vui lòng chọn danh mục');
+      return;
+    }
+    if (form.content.trim().length < 10) {
+      toast.error('Nội dung bài viết quá ngắn');
+      return;
+    }
+
     setSaving(true);
     try {
       if (article) {
@@ -297,7 +313,7 @@ export function ArticleEditorPanel({
           </div>
         </div>
 
-        <div className="p-3 border-top d-flex gap-2 justify-content-end">
+        <div className="admin-editor-panel__footer p-3 border-top d-flex gap-2 justify-content-end">
           <button type="button" className="admin-btn admin-btn--ghost" onClick={handleClose}>
             Hủy
           </button>

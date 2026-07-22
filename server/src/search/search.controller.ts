@@ -1,5 +1,6 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import type { FastifyRequest } from 'fastify';
 import { SearchQueryDto } from './dto/search-query.dto';
 import { SearchService } from './search.service';
 
@@ -10,7 +11,11 @@ export class SearchController {
 
   @Get()
   @ApiOperation({ summary: 'Tìm kiếm bài viết và dự án (public)' })
-  search(@Query() query: SearchQueryDto) {
-    return this.searchService.searchPublic(query.q ?? '', query.limit ?? 10);
+  search(@Query() query: SearchQueryDto, @Req() req: FastifyRequest) {
+    return this.searchService.searchPublic(
+      query.q ?? '',
+      query.limit ?? 10,
+      req.ip,
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsOptional,
@@ -23,6 +24,7 @@ export class CreateCategoryDto {
   description?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   sortOrder?: number;
 }

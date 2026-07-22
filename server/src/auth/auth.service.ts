@@ -1,7 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { RateLimitService } from '../redis/rate-limit.service';
 import type { AuthUser, JwtPayload } from './auth.types';
 import { UsersRepository } from '../users/users.repository';
 
@@ -11,10 +17,22 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly rateLimit: RateLimitService,
   ) {}
 
-  async login(email: string, password: string) {
-    const user = await this.usersRepository.findByEmail(email.toLowerCase());
+  async login(email: string, password: string, clientIp: string) {
+    const normalizedEmail = email.toLowerCase();
+    const rateLimitKey = `ratelimit:login:${clientIp}:${normalizedEmail}`;
+    const allowed = await this.rateLimit.consume(rateLimitKey, 10, 900);
+
+    if (!allowed) {
+      throw new HttpException(
+        'Quá nhiều lần đăng nhập. Vui lòng thử lại sau.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    const user = await this.usersRepository.findByEmail(normalizedEmail);
     if (!user) {
       throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
     }

@@ -6,22 +6,31 @@ import {
 } from '../common/article-search.util';
 import { PrismaService } from '../prisma/prisma.service';
 
-const ARTICLE_SELECT = {
+const ARTICLE_SELECT = Prisma.validator<Prisma.NewsArticleSelect>()({
   id: true,
   slug: true,
   title: true,
   excerpt: true,
   content: true,
   coverImage: true,
-  status: true,
   publishedAt: true,
+  updatedAt: true,
   category: {
     select: {
       slug: true,
       name: true,
     },
   },
-} satisfies Prisma.NewsArticleSelect;
+});
+
+const ADMIN_ARTICLE_INCLUDE = {
+  category: {
+    select: {
+      slug: true,
+      name: true,
+    },
+  },
+} satisfies Prisma.NewsArticleInclude;
 
 const PROJECT_SELECT = {
   id: true,
@@ -50,7 +59,7 @@ export class SearchRepository {
       this.prisma.newsArticle.findMany({
         where,
         select: ARTICLE_SELECT,
-        orderBy: [{ publishedAt: 'desc' }],
+        orderBy: [{ updatedAt: 'desc' }, { publishedAt: 'desc' }],
         take: limit,
       }),
       this.prisma.newsArticle.count({ where }),
@@ -66,8 +75,8 @@ export class SearchRepository {
     return this.prisma.$transaction([
       this.prisma.newsArticle.findMany({
         where: searchFilter,
-        select: ARTICLE_SELECT,
-        orderBy: [{ updatedAt: 'desc' }],
+        include: ADMIN_ARTICLE_INCLUDE,
+        orderBy: [{ updatedAt: 'desc' }, { publishedAt: 'desc' }],
         take: limit,
       }),
       this.prisma.newsArticle.count({ where: searchFilter }),

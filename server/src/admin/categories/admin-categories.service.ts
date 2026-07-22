@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { NewsQueueService } from '../../queue/news-queue.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { CreateCategoryDto } from './dto/create-category.dto';
 import type { UpdateCategoryDto } from './dto/update-category.dto';
@@ -14,7 +15,10 @@ const categoryInclude = {
 
 @Injectable()
 export class AdminCategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly newsQueue: NewsQueueService,
+  ) {}
 
   list() {
     return this.prisma.newsCategory.findMany({
@@ -32,7 +36,7 @@ export class AdminCategoriesService {
       throw new ConflictException('Slug danh mục đã tồn tại');
     }
 
-    return this.prisma.newsCategory.create({
+    const category = await this.prisma.newsCategory.create({
       data: {
         name: dto.name,
         slug: dto.slug,
@@ -41,6 +45,9 @@ export class AdminCategoriesService {
       },
       include: categoryInclude,
     });
+
+    await this.newsQueue.invalidateNewsCache();
+    return category;
   }
 
   async update(id: string, dto: UpdateCategoryDto) {
@@ -51,11 +58,14 @@ export class AdminCategoriesService {
       throw new NotFoundException('Không tìm thấy danh mục');
     }
 
-    return this.prisma.newsCategory.update({
+    const updated = await this.prisma.newsCategory.update({
       where: { id },
       data: dto,
       include: categoryInclude,
     });
+
+    await this.newsQueue.invalidateNewsCache();
+    return updated;
   }
 
   async remove(id: string) {
@@ -76,6 +86,7 @@ export class AdminCategoriesService {
     }
 
     await this.prisma.newsCategory.delete({ where: { id } });
+    await this.newsQueue.invalidateNewsCache();
     return { ok: true };
   }
 }

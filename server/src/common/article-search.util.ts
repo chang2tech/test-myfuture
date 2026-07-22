@@ -16,6 +16,7 @@ export function buildArticleSearchFilter(
     { content: { contains: trimmed, mode: 'insensitive' } },
     { slug: { contains: trimmed, mode: 'insensitive' } },
     { externalSlug: { contains: trimmed, mode: 'insensitive' } },
+    { category: { name: { contains: trimmed, mode: 'insensitive' } } },
   ];
 
   for (const term of terms) {

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import type { AuthUser } from '../../auth/auth.types';
+import { NewsQueueService } from '../../queue/news-queue.service';
 import { SearchService } from '../../search/search.service';
 import type {
   AdminArticleQueryDto,
@@ -27,6 +28,7 @@ export class AdminArticlesService {
     private readonly repository: AdminArticlesRepository,
     private readonly sortRepository: AdminArticlesSortRepository,
     private readonly searchService: SearchService,
+    private readonly newsQueue: NewsQueueService,
   ) {}
 
   async list(query: AdminArticleQueryDto) {
@@ -65,7 +67,7 @@ export class AdminArticlesService {
       { forInsert: true },
     );
 
-    return this.repository.createWithSortOrder(
+    const article = await this.repository.createWithSortOrder(
       {
         title: dto.title,
         slug: dto.slug,
@@ -85,6 +87,9 @@ export class AdminArticlesService {
       dto.categoryId,
       categorySortOrder,
     );
+
+    await this.newsQueue.invalidateNewsCache();
+    return article;
   }
 
   async update(id: string, dto: UpdateArticleDto) {
@@ -133,7 +138,7 @@ export class AdminArticlesService {
       );
     }
 
-    return this.repository.update(id, {
+    const updated = await this.repository.update(id, {
       ...(dto.title !== undefined ? { title: dto.title } : {}),
       ...(dto.slug !== undefined ? { slug: dto.slug } : {}),
       ...(dto.excerpt !== undefined ? { excerpt: dto.excerpt } : {}),
@@ -164,6 +169,9 @@ export class AdminArticlesService {
           ? { category: { connect: { id: dto.categoryId } } }
           : {}),
     });
+
+    await this.newsQueue.invalidateNewsCache();
+    return updated;
   }
 
   async remove(id: string) {
@@ -173,6 +181,7 @@ export class AdminArticlesService {
       article.categoryId,
       article.categorySortOrder,
     );
+    await this.newsQueue.invalidateNewsCache();
     return { ok: true };
   }
 

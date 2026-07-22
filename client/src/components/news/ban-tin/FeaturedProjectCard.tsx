@@ -16,7 +16,7 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
   return (
     <div className="project-card h-100 d-flex flex-column">
       <SmartLink href={projectHref} className="d-block flex-grow-1">
-        <div className="card-img-wrap">
+        <div className="card-img-wrap position-relative">
           <ImageWithSkeleton
             layout="fill"
             src={project.coverImage}

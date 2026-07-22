@@ -1126,6 +1126,18 @@
   width: 100px;
 }
 
+.admin-table__col-date {
+  width: 108px;
+}
+
+.admin-table__date {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--admin-text-secondary);
+  white-space: nowrap;
+}
+
 .admin-table__col-status {
   width: 110px;
 }
@@ -1324,8 +1336,8 @@
 
 /* ── Editor panel ──────────────────────────────────────────── */
 :root {
-  --admin-editor-width: min(720px, 100vw);
-  --admin-preview-width: min(440px, 100vw);
+  --admin-editor-width: min(720px, 100%);
+  --admin-preview-width: min(440px, 100%);
 }
 
 .admin-editor-backdrop {
@@ -1468,7 +1480,8 @@
 @media (max-width: 1199px) {
   .admin-article-preview {
     right: 0;
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     z-index: 1060;
   }
 
@@ -1488,6 +1501,14 @@
 
 .admin-editor-panel__body {
   min-height: 0;
+}
+
+.admin-editor-panel__footer {
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+.admin-editor-panel code {
+  word-break: break-all;
 }
 
 .admin-editor-panel .form-control::placeholder,
@@ -1592,6 +1613,7 @@
 
 .admin-html-editor__toolbar-btn {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 34px;
@@ -1604,6 +1626,14 @@
   font-size: 18px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+}
+
+.admin-html-editor__toolbar-btn i.bx,
+.admin-html-editor__toolbar-btn i.bxs {
+  font-family: boxicons !important;
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .admin-html-editor__toolbar-btn:hover {
@@ -1647,6 +1677,16 @@
   border-left: 3px solid var(--admin-brand);
   background: var(--admin-brand-soft);
   color: var(--admin-text-secondary);
+}
+
+.admin-html-editor__content [style*='text-align: center'],
+.admin-html-editor__content [style*='text-align:center'] {
+  text-align: center;
+}
+
+.admin-html-editor__content [style*='text-align: right'],
+.admin-html-editor__content [style*='text-align:right'] {
+  text-align: right;
 }
 
 .auth-login-page {
@@ -1747,6 +1787,8 @@
   .admin-shell__main {
     margin-left: 0 !important;
     width: 100% !important;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   .admin-shell__content {
@@ -1761,9 +1803,66 @@
     display: inline-flex;
   }
 
+  .admin-navbar__inner {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
   .admin-navbar__search {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 0;
     max-width: none;
-    flex: 1;
+  }
+
+  .admin-navbar__search-wrap {
+    max-width: none;
+  }
+
+  .admin-navbar__actions {
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+
+  .admin-row-actions .admin-btn--icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .admin-editor-panel,
+  .admin-article-preview {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .admin-page-header {
+    gap: 12px;
+  }
+
+  .admin-page-header__title {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .admin-html-editor__topbar {
+    flex-wrap: wrap;
+  }
+
+  .admin-html-editor__topbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .admin-category-tabs {
+    margin-inline: -4px;
+  }
+
+  .admin-sidebar__nav {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

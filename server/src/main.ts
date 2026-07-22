@@ -1,10 +1,14 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import cookieParser from 'cookie-parser';
-import express from 'express';
+import fastifyCookie from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import { AppModule } from './app.module';
 import {
   getUploadDirectory,
@@ -12,12 +16,21 @@ import {
 } from './upload/upload.paths';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
   const config = app.get(ConfigService);
 
-  app.use(UPLOAD_PUBLIC_BASE_PATH, express.static(getUploadDirectory(config)));
-
-  app.use(cookieParser());
+  await app.register(fastifyCookie);
+  await app.register(fastifyMultipart, {
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
+  await app.register(fastifyStatic, {
+    root: getUploadDirectory(config),
+    prefix: `${UPLOAD_PUBLIC_BASE_PATH}/`,
+    decorateReply: false,
+  });
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
@@ -48,7 +61,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = config.get<number>('PORT', 4721);
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 }
 
 void bootstrap();

@@ -20,7 +20,7 @@ interface BanTinPageContentProps {
 }
 
 export async function BanTinPageContent({ category }: BanTinPageContentProps) {
-  const activeCategory = category ?? 'toan-canh';
+  const activeCategory = category ?? '';
 
   const [stats, categories, homeNews, projects] = await Promise.all([
     getMarketStats(),

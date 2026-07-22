@@ -33,7 +33,11 @@ export async function ArticleBanTinContent({
   const canonicalHref = getArticleHref(detail.category.slug, detail.slug);
   if (categoryRoute) {
     const config = getCategoryRouteById(categoryRoute);
-    if (!config || config.slug !== detail.category.slug) {
+    const categoryRouteMatches = config
+      ? config.slug === detail.category.slug
+      : categoryRoute === detail.category.slug;
+
+    if (!categoryRouteMatches) {
       redirect(canonicalHref);
     }
   }

@@ -1,0 +1,112 @@
+# Production / Staging stack — dùng với GHCR images từ CI
+# Chạy trên VPS: docker compose -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: myfuture_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - myfuture
+
+  redis:
+    image: redis:7-alpine
+    container_name: myfuture_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - myfuture
+
+  migrate:
+    image: ${IMAGE_REGISTRY}/myfuture-server:${APP_VERSION:-latest}
+    container_name: myfuture_migrate
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx prisma migrate deploy
+    restart: 'no'
+    networks:
+      - myfuture
+
+  server:
+    image: ${IMAGE_REGISTRY}/myfuture-server:${APP_VERSION:-latest}
+    container_name: myfuture_server
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 4721
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      UPLOAD_DIR: uploads/articles
+    volumes:
+      - upload_data:/app/uploads/articles
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - myfuture
+
+  client:
+    image: ${IMAGE_REGISTRY}/myfuture-client:${APP_VERSION:-latest}
+    container_name: myfuture_client
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3721
+      API_URL: http://server:4721/api
+    depends_on:
+      - server
+    networks:
+      - myfuture
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: myfuture_nginx
+    restart: unless-stopped
+    ports:
+      - '${NGINX_PORT:-8090}:80'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - server
+      - client
+    networks:
+      - myfuture
+
+volumes:
+  postgres_data:
+  redis_data:
+  upload_data:
+
+networks:
+  myfuture:
+    name: myfuture-network

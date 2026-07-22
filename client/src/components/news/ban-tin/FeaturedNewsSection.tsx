@@ -23,7 +23,7 @@ export function FeaturedNewsSection({
       <div className="col-12 col-md-6 col-lg-7">
         {featured && (
           <div className="box_featured position-relative rounded-3 overflow-hidden image-scale h-100">
-            <div className="featured-img-wrap">
+            <div className="featured-img-wrap position-relative">
               <span className="featured-badge-red">NỔI BẬT</span>
               <SmartLink
                 href={getArticleHref(featured.category.slug, featured.slug)}
@@ -97,7 +97,7 @@ export function FeaturedNewsSection({
                   sizes="110px"
                 />
               </SmartLink>
-              <div>
+              <div className="min-w-0">
                 <h4 className="fh-title line-clamp-3">
                   <SmartLink
                     href={getArticleHref(article.category.slug, article.slug)}

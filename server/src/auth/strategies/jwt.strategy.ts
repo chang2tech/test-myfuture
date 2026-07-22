@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { Request } from 'express';
+import type { FastifyRequest } from 'fastify';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import type { AuthUser, JwtPayload } from '../auth.types';
 import { UsersRepository } from '../../users/users.repository';
 
-function extractToken(req: Request): string | null {
-  const cookieToken = req.cookies?.access_token as string | undefined;
+function extractToken(req: FastifyRequest): string | null {
+  const cookieToken = req.cookies?.access_token;
   if (cookieToken) return cookieToken;
 
   const header = req.headers.authorization;
