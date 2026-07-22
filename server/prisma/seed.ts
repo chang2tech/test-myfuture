@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
@@ -7,7 +7,7 @@ import {
   decodeHtmlEntities,
   isQualityContent,
   MIN_ARTICLES_PER_CATEGORY,
-} from '../scripts/news-content-utils';
+} from './seed-utils';
 
 const prisma = new PrismaClient();
 
@@ -194,6 +194,19 @@ async function main() {
   const scrapedPath = resolve(__dirname, 'data/scraped-category-articles.json');
   const detailsPath = resolve(__dirname, 'data/scraped-article-details.json');
   const homePath = resolve(__dirname, 'data/scraped-ban-tin-home.json');
+
+  const hasScrapedData =
+    existsSync(scrapedPath) &&
+    existsSync(detailsPath) &&
+    existsSync(homePath);
+
+  if (!hasScrapedData) {
+    console.log(
+      'Scraped article data not found — seeded admin, categories, and projects only.',
+    );
+    return;
+  }
+
   const scrapedData = JSON.parse(
     readFileSync(scrapedPath, 'utf-8'),
   ) as CategoryScrapeResult[];

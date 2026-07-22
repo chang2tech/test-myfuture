@@ -59,7 +59,7 @@ skills-lock.json
 
 # ── Scrape / debug artifacts (regenerated locally) ─────────────
 html-*.html
-server/prisma/data/scraped-*.json
+# Scraped seed data is committed for staging/production deploy
 
 # ── Uploaded media (stored on server) ─────────────────────────
 server/uploads/*

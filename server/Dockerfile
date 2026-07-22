@@ -25,6 +25,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 RUN npx prisma generate
 EXPOSE 4721
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
