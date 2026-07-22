@@ -2,12 +2,27 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import {
-  cleanContentHtml,
-  decodeHtmlEntities,
-  isQualityContent,
-  MIN_ARTICLES_PER_CATEGORY,
-} from './seed-utils';
+import { decode } from 'he';
+
+const MIN_CONTENT_LENGTH = 200;
+const MIN_ARTICLES_PER_CATEGORY = 15;
+
+function decodeHtmlEntities(value: string): string {
+  return decode(value);
+}
+
+function cleanContentHtml(html: string): string {
+  return html
+    .replace(/\s*<\/div>[\s\S]*$/, '')
+    .replace(/\s*<div[^>]*$/, '')
+    .trim();
+}
+
+function isQualityContent(html: string | null | undefined): boolean {
+  if (!html) return false;
+  const cleaned = cleanContentHtml(html);
+  return cleaned.length >= MIN_CONTENT_LENGTH && cleaned.includes('<p');
+}
 
 const prisma = new PrismaClient();
 
