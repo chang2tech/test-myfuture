@@ -1,14 +1,14 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-import { decode } from 'he';
+import bcrypt from 'bcrypt';
+import he from 'he';
 
 const MIN_CONTENT_LENGTH = 200;
 const MIN_ARTICLES_PER_CATEGORY = 15;
 
 function decodeHtmlEntities(value: string): string {
-  return decode(value);
+  return he.decode(value);
 }
 
 function cleanContentHtml(html: string): string {

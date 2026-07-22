@@ -51,8 +51,9 @@ echo "▶ Seed database (lần đầu)..."
 read -r -p "Chạy seed dữ liệu mẫu? [y/N] " RUN_SEED
 if [[ "$RUN_SEED" =~ ^[Yy]$ ]]; then
   docker compose -f docker-compose.prod.yml run --rm \
-    -e DATABASE_URL="postgresql://${POSTGRES_USER:-myfuture}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-myfuture}?schema=public" \
-    server npx ts-node prisma/seed.ts
+    -v "$(pwd)/server/prisma:/app/prisma" \
+    -v "$(pwd)/server/package.json:/app/package.json" \
+    migrate npx prisma db seed
 fi
 
 echo ""
