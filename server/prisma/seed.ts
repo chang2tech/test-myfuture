@@ -130,6 +130,30 @@ interface HomeArticleDetail {
   categorySlug: string;
 }
 
+async function resolveCategorySortOrder(
+  categoryId: string,
+  preferred: number,
+  excludeId?: string,
+): Promise<number> {
+  const conflict = await prisma.newsArticle.findFirst({
+    where: {
+      categoryId,
+      categorySortOrder: preferred,
+      ...(excludeId ? { NOT: { id: excludeId } } : {}),
+    },
+    select: { id: true },
+  });
+
+  if (!conflict) return preferred;
+
+  const result = await prisma.newsArticle.aggregate({
+    where: { categoryId },
+    _max: { categorySortOrder: true },
+  });
+
+  return (result._max.categorySortOrder ?? -1) + 1;
+}
+
 async function upsertArticle(
   data: {
     slug: string;
@@ -156,15 +180,22 @@ async function upsertArticle(
     },
   });
 
+  const categorySortOrder = await resolveCategorySortOrder(
+    data.categoryId,
+    data.categorySortOrder,
+    existing?.id,
+  );
+  const payload = { ...data, categorySortOrder };
+
   if (existing) {
     await prisma.newsArticle.update({
       where: { id: existing.id },
-      data: { ...data, slug: data.slug },
+      data: { ...payload, slug: data.slug },
     });
     return data.slug;
   }
 
-  await prisma.newsArticle.create({ data });
+  await prisma.newsArticle.create({ data: payload });
   return data.slug;
 }
 
