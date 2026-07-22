@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { useMemo, useState } from 'react';
 import { FeaturedProjectCard } from '@/components/news/ban-tin/FeaturedProjectCard';
 import {
@@ -55,12 +55,12 @@ export function FeaturedProjectsSection({
             </button>
           ))}
         </div>
-        <Link
+        <SmartLink
           href="/thong-tin-du-an/"
           className="view-all w-px-150 justify-content-end"
         >
           Xem tất cả dự án <i className="fa fa-arrow-right" />
-        </Link>
+        </SmartLink>
       </div>
 
       <div className="position-relative">

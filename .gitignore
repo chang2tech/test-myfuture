@@ -59,3 +59,7 @@ skills-lock.json
 # ── Scrape / debug artifacts (regenerated locally) ─────────────
 html-*.html
 server/prisma/data/scraped-*.json
+
+# ── Uploaded media (stored on server) ─────────────────────────
+server/uploads/*
+!server/uploads/.gitkeep

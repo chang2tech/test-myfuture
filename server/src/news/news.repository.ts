@@ -11,6 +11,8 @@ export type NewsArticleWithCategory = Prisma.NewsArticleGetPayload<{
 export class NewsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly publishedFilter = { status: 'PUBLISHED' as const };
+
   findCategories() {
     return this.prisma.newsCategory.findMany({
       orderBy: { sortOrder: 'asc' },
@@ -28,9 +30,10 @@ export class NewsRepository {
     const { categorySlug, page, limit } = params;
     const skip = (page - 1) * limit;
 
-    const where: Prisma.NewsArticleWhereInput = categorySlug
-      ? { category: { slug: categorySlug } }
-      : {};
+    const where: Prisma.NewsArticleWhereInput = {
+      ...this.publishedFilter,
+      ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+    };
 
     const orderBy: Prisma.NewsArticleOrderByWithRelationInput[] = categorySlug
       ? [{ categorySortOrder: 'asc' }, { publishedAt: 'desc' }]
@@ -51,6 +54,7 @@ export class NewsRepository {
   findFeaturedArticle(categorySlug?: string) {
     const where: Prisma.NewsArticleWhereInput = {
       isFeatured: true,
+      ...this.publishedFilter,
       ...(categorySlug ? { category: { slug: categorySlug } } : {}),
     };
 
@@ -64,6 +68,7 @@ export class NewsRepository {
   findHomeArticles() {
     return this.prisma.newsArticle.findMany({
       where: {
+        ...this.publishedFilter,
         externalSlug: { in: [...HOME_ARTICLE_EXTERNAL_SLUGS] },
       },
       include: { category: true },
@@ -73,6 +78,7 @@ export class NewsRepository {
   findArticleBySlug(slug: string) {
     return this.prisma.newsArticle.findFirst({
       where: {
+        ...this.publishedFilter,
         OR: [{ slug }, { externalSlug: slug }],
       },
       include: { category: true },
@@ -87,6 +93,7 @@ export class NewsRepository {
     return this.prisma.$transaction([
       this.prisma.newsArticle.findFirst({
         where: {
+          ...this.publishedFilter,
           categoryId,
           id: { not: excludeId },
           categorySortOrder: { lt: categorySortOrder },
@@ -96,6 +103,7 @@ export class NewsRepository {
       }),
       this.prisma.newsArticle.findFirst({
         where: {
+          ...this.publishedFilter,
           categoryId,
           id: { not: excludeId },
           categorySortOrder: { gt: categorySortOrder },
@@ -109,6 +117,7 @@ export class NewsRepository {
   findHotInCategory(categoryId: string, excludeId: string, limit: number) {
     return this.prisma.newsArticle.findMany({
       where: {
+        ...this.publishedFilter,
         categoryId,
         id: { not: excludeId },
         OR: [{ isHot: true }, { isFeatured: true }],
@@ -121,7 +130,7 @@ export class NewsRepository {
 
   findRecommendedArticles(excludeId: string, limit: number) {
     return this.prisma.newsArticle.findMany({
-      where: { id: { not: excludeId } },
+      where: { ...this.publishedFilter, id: { not: excludeId } },
       include: { category: true },
       orderBy: [{ isHot: 'desc' }, { publishedAt: 'desc' }],
       take: limit,
@@ -140,9 +149,12 @@ export class NewsRepository {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     return this.prisma.$transaction([
-      this.prisma.newsArticle.count(),
+      this.prisma.newsArticle.count({ where: this.publishedFilter }),
       this.prisma.newsArticle.count({
-        where: { createdAt: { gte: sevenDaysAgo } },
+        where: {
+          ...this.publishedFilter,
+          createdAt: { gte: sevenDaysAgo },
+        },
       }),
       this.prisma.newsCategory.count(),
       this.prisma.newsCategory.count({

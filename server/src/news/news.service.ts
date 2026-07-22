@@ -45,7 +45,7 @@ export class NewsService {
 
   async getHomeArticles() {
     const articles = await this.newsRepository.findHomeArticles();
-    const orderMap = new Map(
+    const orderMap = new Map<string, number>(
       HOME_ARTICLE_EXTERNAL_SLUGS.map((slug, index) => [slug, index]),
     );
 
@@ -55,7 +55,8 @@ export class NewsService {
       return leftOrder - rightOrder;
     });
 
-    const featured = sorted.find((article) => article.isFeatured) ?? sorted[0] ?? null;
+    const featured =
+      sorted.find((article) => article.isFeatured) ?? sorted[0] ?? null;
     const sideArticles = sorted
       .filter((article) => article.slug !== featured?.slug)
       .slice(0, 3);

@@ -2,34 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Stop Docker App",
-      "type": "shell",
-      "command": "docker compose stop client server 2>/dev/null || true",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "panel": "shared"
-      }
-    },
-    {
-      "label": "Start DB (Docker)",
-      "type": "shell",
-      "command": "docker compose up postgres redis -d",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "panel": "dedicated",
-        "group": "dev"
-      }
-    },
-    {
-      "label": "Start Client",
+      "label": "Client",
       "type": "shell",
       "command": "npm run dev",
-      "dependsOn": ["Stop Docker App"],
       "options": {
         "cwd": "${workspaceFolder}/client"
       },
@@ -39,10 +14,9 @@
       }
     },
     {
-      "label": "Start Server",
+      "label": "Server",
       "type": "shell",
       "command": "npm run start:dev",
-      "dependsOn": ["Stop Docker App", "Start DB (Docker)"],
       "options": {
         "cwd": "${workspaceFolder}/server"
       },
@@ -52,22 +26,11 @@
       }
     },
     {
-      "label": "🚀 Dev All (Local)",
-      "dependsOn": ["Start Client", "Start Server"],
+      "label": "Dev",
+      "dependsOn": ["Client", "Server"],
       "dependsOrder": "parallel",
-      "group": { "kind": "build", "isDefault": true }
-    },
-    {
-      "label": "🐳 Dev All (Docker)",
-      "type": "shell",
-      "command": "docker compose up --build",
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "presentation": {
-        "panel": "dedicated",
-        "group": "dev"
-      }
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
     }
   ]
 }

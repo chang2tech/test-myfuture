@@ -11,6 +11,11 @@ const envSchema = z.object({
   REDIS_PASSWORD: z.string().optional(),
   CORS_ORIGINS: z.string().default('http://localhost:3721'),
   CLIENT_URL: z.string().default('http://localhost:3721'),
+  JWT_SECRET: z.string().min(16).default('dev-jwt-secret-change-me'),
+  JWT_EXPIRES_IN: z.string().default('7d'),
+  UPLOAD_DIR: z.string().default('uploads/articles'),
+  DEV_ADMIN_EMAIL: z.string().email().default('admin@myfuture.vn'),
+  DEV_ADMIN_PASSWORD: z.string().min(8).default('Admin@2026'),
 });
 
 export type Env = z.infer<typeof envSchema>;

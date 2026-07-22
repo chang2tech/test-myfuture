@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { getCategoryRouteHref } from '@/constants/news/category-routes';
 
 interface ArticleBreadcrumbProps {
@@ -12,11 +12,11 @@ export function ArticleBreadcrumb({
 }: ArticleBreadcrumbProps) {
   return (
     <div className="fh-breadcrumb mb-3">
-      <Link href="/ban-tin">
+      <SmartLink href="/ban-tin">
         <i className="fa fa-newspaper-o" /> Bản tin
-      </Link>
+      </SmartLink>
       <span className="sep">/</span>
-      <Link href={getCategoryRouteHref(categorySlug)}>{categoryName}</Link>
+      <SmartLink href={getCategoryRouteHref(categorySlug)}>{categoryName}</SmartLink>
       <span className="sep">/</span>
       <span className="current">Bài viết</span>
     </div>

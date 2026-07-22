@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { getCategoryPageHref } from '@/constants/news/category-routes';
 
 interface NewsPaginationProps {
@@ -38,12 +38,12 @@ export function NewsPagination({
       <div className="pagination">
         <li className="page-item">
           {prevPage ? (
-            <Link
+            <SmartLink
               className="prev page-link"
               href={getCategoryPageHref(routeId, prevPage)}
             >
               ‹
-            </Link>
+            </SmartLink>
           ) : (
             <span className="prev page-link disabled">‹</span>
           )}
@@ -56,24 +56,24 @@ export function NewsPagination({
             {page === currentPage ? (
               <span className="current page page-link">{page}</span>
             ) : (
-              <Link
+              <SmartLink
                 className="page page-link"
                 href={getCategoryPageHref(routeId, page)}
               >
                 {page}
-              </Link>
+              </SmartLink>
             )}
           </li>
         ))}
         <li className="page-item">
           {nextPage ? (
-            <Link
+            <SmartLink
               className="next page-link"
               href={getCategoryPageHref(routeId, nextPage)}
               title={String(nextPage)}
             >
               ›
-            </Link>
+            </SmartLink>
           ) : (
             <span className="next page-link disabled">›</span>
           )}

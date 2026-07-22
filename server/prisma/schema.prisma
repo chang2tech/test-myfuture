@@ -7,6 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  ADMIN
+  EDITOR
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  name         String?
+  role         UserRole      @default(EDITOR)
+  articles     NewsArticle[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("users")
+}
+
 model NewsCategory {
   id          String        @id @default(cuid())
   slug        String        @unique
@@ -33,15 +57,19 @@ model NewsArticle {
   keywords        String[]     @default([])
   readTimeMinutes Int          @default(5)
   isHot           Boolean      @default(false)
-  isFeatured      Boolean      @default(false)
-  viewCount       Int          @default(0)
+  isFeatured      Boolean       @default(false)
+  status          ArticleStatus @default(PUBLISHED)
+  viewCount       Int           @default(0)
   categorySortOrder Int        @default(0)
   publishedAt     DateTime     @default(now())
+  authorId        String?
+  author          User?        @relation(fields: [authorId], references: [id], onDelete: SetNull)
   categoryId      String
   category        NewsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
+  @@unique([categoryId, categorySortOrder])
   @@index([categoryId])
   @@index([publishedAt])
   @@index([isFeatured])

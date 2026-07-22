@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ComingSoonButton } from '@/components/shared/ComingSoonButton';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { ASSETS } from '@/constants/layout/assets';
 import type { FeaturedProjectDisplay } from '@/constants/news/featured-projects';
 
@@ -13,27 +14,24 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
   const projectHref = `/project/${project.slug}.html`;
 
   return (
-    <div className="project-card">
-      <Link href={projectHref} className="d-block">
+    <div className="project-card h-100 d-flex flex-column">
+      <SmartLink href={projectHref} className="d-block flex-grow-1">
         <div className="card-img-wrap">
-          <Image
+          <ImageWithSkeleton
+            layout="fill"
             src={project.coverImage}
             alt={project.name}
-            width={600}
-            height={400}
-            className="w-100 h-auto"
-            style={{ objectFit: 'cover' }}
+            sizes="270px"
           />
           <span className="card-badge">{project.badgeText ?? 'Mở bán'}</span>
-          <button
-            type="button"
+          <ComingSoonButton
             className="card-fav pc-card__heart"
             title="Thêm vào yêu thích"
             style={{ color: 'var(--gray)' }}
-            onClick={(e) => e.preventDefault()}
+            feature="Yêu thích đang được cập nhật"
           >
             <i className="bx bx-cart" />
-          </button>
+          </ComingSoonButton>
         </div>
         <div className="card-body-custom">
           <div className="card-title-custom limit_1line">{project.name}</div>
@@ -54,35 +52,35 @@ export function FeaturedProjectCard({ project }: FeaturedProjectCardProps) {
             {project.apartments}
           </div>
         </div>
-      </Link>
-      <div className="card-body-custom d-flex justify-content-between gap-2 pt-0">
+      </SmartLink>
+      <div className="card-body-custom d-flex justify-content-between gap-2 pt-0 mt-auto">
         {project.hasVr && (
-          <Link
+          <SmartLink
             href={`${projectHref}#VR360`}
             className="btn btn-icon btn-sm btn-outline-default"
           >
-            <Image
+            <ImageWithSkeleton
+              layout="intrinsic"
               src={ASSETS.vr360}
               alt="VR360"
-              width={22}
-              height={22}
-              className="h-auto"
-              style={{ width: 22 }}
+              width={154}
+              height={77}
+              style={{ width: 22, height: 'auto' }}
             />
-          </Link>
+          </SmartLink>
         )}
-        <Link
+        <SmartLink
           href={`/bang-hang/?id=${project.externalId}`}
           className="pc-card__btn border btn-sm btn btn-main text-dark flex-flow"
         >
           Bảng hàng
-        </Link>
-        <Link
+        </SmartLink>
+        <SmartLink
           href={projectHref}
           className="btn btn-default btn-sm flex-flow"
         >
           Xem chi tiết
-        </Link>
+        </SmartLink>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import {
   OwlCarouselItem,
   OwlCarouselRow,
@@ -20,7 +20,7 @@ export function PopularTopicsSection() {
       >
         {POPULAR_TOPICS.map((topic) => (
           <OwlCarouselItem key={topic.slug}>
-            <Link
+            <SmartLink
               href={getCategoryRouteHref(topic.slug)}
               className="topic-item"
             >
@@ -34,7 +34,7 @@ export function PopularTopicsSection() {
                 <div className="topic-name limit_1line">{topic.name}</div>
                 <div className="topic-count">{topic.count} bài viết</div>
               </div>
-            </Link>
+            </SmartLink>
           </OwlCarouselItem>
         ))}
       </OwlCarouselRow>

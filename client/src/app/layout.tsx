@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
+import { AppProviders } from '@/components/providers/AppProviders';
 import { ThemeStyles, beVietnamPro } from '@/components/layout/ThemeStyles';
 import { ASSETS } from '@/constants/layout/assets';
 import { env } from '@/lib/core/env';
 import './globals.css';
+
+const HTML_LAYOUT_CLASSES =
+  'light-style layout-menu-fixed layout-navbar-fixed layout-menu-100vh';
 
 export const metadata: Metadata = {
   title: {
@@ -12,8 +16,8 @@ export const metadata: Metadata = {
   description:
     'MyFuture.vn – Nền tảng bất động sản toàn quốc',
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
+    icon: [{ url: ASSETS.favicon, type: 'image/png' }],
+    shortcut: ASSETS.favicon,
     apple: ASSETS.favicon,
   },
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
@@ -25,14 +29,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="vi"
-      className={`light-style layout-menu-fixed layout-navbar-fixed layout-menu-100vh ${beVietnamPro.variable}`}
-    >
+    <html lang="vi" suppressHydrationWarning className={HTML_LAYOUT_CLASSES}>
       <head>
         <ThemeStyles />
       </head>
-      <body className="desktop page page-template news-page">{children}</body>
+      <body
+        suppressHydrationWarning
+        className={`desktop page page-template news-page ${beVietnamPro.variable}`}
+      >
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

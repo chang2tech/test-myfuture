@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { ProUpgradeOverlay } from '@/components/news/shared/ProUpgradeOverlay';
 import {
   OwlCarouselItem,
@@ -11,9 +11,9 @@ export function ReportInsightSection() {
     <section className="block report_insight position-relative overflow-hidden">
       <div className="d-flex justify-content-between align-items-center mb-2">
         <h2 className="section-heading mb-0">Báo cáo &amp; Insight</h2>
-        <Link href="#" className="view-all w-px-150 justify-content-end">
+        <SmartLink href="#" className="view-all w-px-150 justify-content-end">
           Xem tất cả <i className="fa fa-arrow-right" />
-        </Link>
+        </SmartLink>
       </div>
       <OwlCarouselRow
         className="report-scroll-wrap"
@@ -30,9 +30,9 @@ export function ReportInsightSection() {
                   <h5>{report.title}</h5>
                   <p>{report.description}</p>
                 </div>
-                <Link href={report.href} className="btn btn-outline-danger">
+                <SmartLink href={report.href} className="btn btn-outline-danger">
                   Xem báo cáo
-                </Link>
+                </SmartLink>
               </div>
             </div>
           </OwlCarouselItem>

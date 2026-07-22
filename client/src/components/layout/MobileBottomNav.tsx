@@ -1,9 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { ASSETS } from '@/constants/layout/assets';
 
 type NavItem =
@@ -71,60 +70,41 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function MobileBottomNav() {
-  const pathname = usePathname();
-
   return (
     <nav className="bottom-nav">
       {NAV_ITEMS.map((item) => {
         if (item.isCenter) {
           return (
-            <a
+            <SmartLink
               key={item.label}
               className="nav-item nav-center"
               href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               <div className="ai-glow-ring" />
               <div className="ai-rotate-ring" />
               <div className="ai-btn">
-                <Image
+                <ImageWithSkeleton
+                  layout="intrinsic"
                   className="ai-avatar"
                   src={ASSETS.aiAvatar}
                   width={48}
                   height={48}
                   alt="AI Triệu Lộ Nhi"
+                  rounded="rounded-circle"
                 />
               </div>
               <span className="ai-label d-none">AI (Triệu Lộ Nhi)</span>
-            </a>
+            </SmartLink>
           );
         }
 
-        const isActive = item.match(pathname);
-        const isExternal = item.href.startsWith('http');
-        const className = `nav-item${isActive ? ' active' : ''}`;
-
-        if (isExternal) {
-          return (
-            <a
-              key={item.label}
-              className={className}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="nav-icon">{item.icon}</div>
-              <span className="nav-label">{item.label}</span>
-            </a>
-          );
-        }
+        const className = 'nav-item';
 
         return (
-          <Link key={item.label} className={className} href={item.href}>
+          <SmartLink key={item.label} className={className} href={item.href}>
             <div className="nav-icon">{item.icon}</div>
             <span className="nav-label">{item.label}</span>
-          </Link>
+          </SmartLink>
         );
       })}
     </nav>

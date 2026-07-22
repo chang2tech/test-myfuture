@@ -10,7 +10,7 @@ body {
   font-family: var(--font-be-vietnam-pro), 'Be Vietnam Pro', sans-serif;
 }
 
-/* Layout offset — giống web gốc */
+
 .layout-menu-fixed .layout-navbar-full .layout-menu,
 .layout-page {
   padding-top: 64px !important;
@@ -121,10 +121,138 @@ body {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  container-type: inline-size;
+}
+
+.mf-owl-item--fluid {
+  width: var(--mf-item-width-xs, calc((100cqw - 10px) / 1.5));
+  min-width: var(--mf-item-width-xs, calc((100cqw - 10px) / 1.5));
+  flex-shrink: 0;
+}
+
+@media (min-width: 576px) {
+  .mf-owl-item--fluid {
+    width: var(--mf-item-width-sm, var(--mf-item-width-xs));
+    min-width: var(--mf-item-width-sm, var(--mf-item-width-xs));
+  }
+}
+
+@media (min-width: 768px) {
+  .mf-owl-item--fluid {
+    width: var(--mf-item-width-md, var(--mf-item-width-sm));
+    min-width: var(--mf-item-width-md, var(--mf-item-width-sm));
+  }
+}
+
+@media (min-width: 1200px) {
+  .mf-owl-item--fluid {
+    width: var(--mf-item-width-lg, var(--mf-item-width-md));
+    min-width: var(--mf-item-width-lg, var(--mf-item-width-md));
+  }
+}
+
+.news-stats-carousel {
+  min-height: 96px;
+}
+
+.news-stats-carousel .owl-item {
+  align-self: stretch;
+}
+
+.news-category-tabs.mf-horizontal-scroll-wrap {
+  min-height: 48px;
+}
+
+.mf-owl-scroll.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+.mf-owl-scroll.is-dragging * {
+  pointer-events: none;
 }
 
 .mf-owl-scroll::-webkit-scrollbar {
   display: none;
+}
+
+.mf-owl-item {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.mf-owl-wrap {
+  isolation: isolate;
+}
+
+.mf-horizontal-scroll-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.mf-horizontal-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding: 4px;
+}
+
+.mf-horizontal-scroll.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+.mf-horizontal-scroll.is-dragging * {
+  pointer-events: none;
+}
+
+.mf-horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mf-horizontal-scroll-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mf-horizontal-scroll-fade.is-visible {
+  opacity: 1;
+}
+
+.mf-horizontal-scroll-fade--left {
+  left: 0;
+  background: linear-gradient(90deg, #fff 15%, transparent);
+}
+
+.mf-horizontal-scroll-fade--right {
+  right: 0;
+  background: linear-gradient(270deg, #fff 15%, transparent);
+}
+
+.news-category-tabs__track .tab-link {
+  flex-shrink: 0;
+  white-space: nowrap;
+  scroll-snap-align: start;
 }
 
 .mf-owl-stage {
@@ -132,10 +260,41 @@ body {
   width: max-content;
 }
 
-/* Owl nav — căn giữa theo chiều dọc (theme gốc dùng translateY(-100%) gây lệch lên) */
+/* Boxicons — giữ font icon khi body dùng Be Vietnam Pro */
+i.bx,
+i.bxs,
+i.bxl {
+  font-family: boxicons !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  display: inline-block;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Owl nav — căn giữa + icon hiển thị đúng */
+.mf-owl-wrap .owl-nav,
+.owl-carousel .owl-nav {
+  z-index: 4;
+}
+
+.mf-owl-wrap .owl-nav button,
 .owl-carousel .owl-nav button {
   top: 50%;
   transform: translateY(-50%);
+  z-index: 4;
+  color: #566a7f !important;
+}
+
+.mf-owl-wrap .owl-nav button i.bx,
+.owl-carousel .owl-nav button i.bx {
+  font-family: boxicons !important;
+  font-size: 16px !important;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
 }
 
 .box_quick_access_news .mf-owl-stage {
@@ -158,15 +317,115 @@ body {
 
 .side-news-img img,
 .featured-img-wrap img,
-.project-thumb,
 .company-logo {
   object-fit: cover;
+}
+
+/* Widget Tin tức dự án — 4 thẻ, cuộn phần còn lại */
+.mf-project-news-scroll {
+  position: relative;
+}
+
+.mf-project-news-list {
+  --mf-project-news-item-height: 80px;
+  max-height: calc(var(--mf-project-news-item-height) * 4);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mf-project-news-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.mf-project-news-scrollbar {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  bottom: 0;
+  width: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mf-project-news-scrollbar.is-visible {
+  opacity: 1;
+}
+
+.mf-project-news-scrollbar__thumb {
+  width: 100%;
+  min-height: 24px;
+  border-radius: 999px;
+  background: var(--red, #990303);
+  will-change: transform;
+}
+
+.sidebar_news .mf-project-news-thumb {
+  width: 72px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sidebar_news .mf-project-news-thumb img {
+  border-radius: 8px;
+}
+
+.news-thumb {
+  width: 120px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+  .news-thumb {
+    width: 100%;
+    height: 180px;
+  }
+}
+
+.topic-news-card {
+  position: relative;
+  width: 100%;
+}
+
+.box_topic_news .mf-owl-item {
+  display: flex;
+}
+
+.box_topic_news .topic-news-card {
+  flex: 1;
 }
 
 .topic-news-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Video & Podcast — next/image khớp theme gốc */
+.video_podcast .video-thumb {
+  position: relative;
+  width: 100%;
+  height: 110px;
+}
+
+@media (min-width: 768px) {
+  .video_podcast .video-thumb {
+    height: 120px;
+  }
+}
+
+.video_podcast .video-card {
+  height: 100%;
+}
+
+.video_podcast .owl-item {
+  display: flex;
 }
 
 /* Pro overlay — icon khóa nền tròn (giống web gốc) */
@@ -197,13 +456,20 @@ body {
 
 #new-recommended .owl-item {
   display: flex;
+  align-items: stretch;
   height: auto !important;
+}
+
+#new-recommended .new-item {
+  display: flex;
+  width: 100%;
 }
 
 #new-recommended .card-img-wrap {
   position: relative;
   overflow: hidden;
-  max-height: 140px;
+  height: auto !important;
+  max-height: none;
 }
 
 #new-recommended .card-img-wrap img {
@@ -230,6 +496,7 @@ body {
 }
 
 #new-recommended .card {
+  width: 100%;
   border: none;
   border-radius: 10px;
   overflow: hidden;
@@ -264,4 +531,149 @@ body {
 
 #new-recommended .owl-item:nth-child(4n + 4) .badge-category {
   background-color: #ea580c;
+}
+
+/* Featured projects — đồng nhất chiều cao ảnh và căn thẳng hàng thẻ */
+#projectCarousel .owl-item {
+  display: flex;
+  align-items: stretch;
+}
+
+#projectCarousel .project-card {
+  width: 100%;
+}
+
+#projectCarousel .card-img-wrap {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+#projectCarousel .card-img-wrap img {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Image skeleton — shimmer placeholder (MoMo/ZaloPay style) */
+.image-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, #ececec 0%, #f5f5f5 40%, #ececec 80%);
+  background-size: 200% 100%;
+  animation: image-skeleton-flow 1.8s ease-in-out infinite;
+}
+
+.image-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: image-skeleton-sweep 1.8s ease-in-out infinite;
+}
+
+.image-skeleton-exit {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+}
+
+@keyframes image-skeleton-flow {
+  0%,
+  100% {
+    background-position: 100% 0;
+  }
+
+  50% {
+    background-position: 0 0;
+  }
+}
+
+@keyframes image-skeleton-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Generic skeleton — text/layout placeholder */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ececec 0%,
+    #f3f0e8 45%,
+    #ececec 90%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer-flow 1.6s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer-flow {
+  0%,
+  100% {
+    background-position: 100% 0;
+  }
+
+  50% {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-skeleton {
+    background: linear-gradient(90deg, #2a2a2a 0%, #353535 40%, #2a2a2a 80%);
+    background-size: 200% 100%;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(90deg, #2a2a2a 0%, #3a3830 45%, #2a2a2a 90%);
+    background-size: 200% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-skeleton,
+  .image-skeleton::after,
+  .skeleton-shimmer {
+    animation: none;
+  }
+
+  .image-skeleton-exit {
+    transition: none;
+  }
+}
+
+/* Sonner toast — coming soon feedback */
+[data-sonner-toaster] {
+  --width: min(420px, calc(100vw - 32px));
+  font-family: var(--font-be-vietnam-pro), system-ui, sans-serif;
+}
+
+.mf-toast {
+  border-radius: 12px !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12) !important;
+  padding: 14px 16px !important;
+  font-size: 14px !important;
+}
+
+.mf-toast [data-title] {
+  font-weight: 600;
+  color: var(--bs-body-color, #1e293b);
+}
+
+.mf-toast [data-description] {
+  color: var(--bs-secondary-color, #64748b);
+  line-height: 1.45;
 }

@@ -26,7 +26,7 @@ export async function apiFetch<T>(
       'Content-Type': 'application/json',
       ...options?.headers,
     },
-    next: { revalidate: 60 },
+    next: { tags: ['news'], revalidate: 60 },
   });
 
   if (!response.ok) {

@@ -1,5 +1,6 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ProjectNewsWidget } from '@/components/news/shared/ProjectNewsWidget';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { ProUpgradeOverlay } from '@/components/news/shared/ProUpgradeOverlay';
 import {
   ARTICLE_DEVELOPERS,
@@ -11,6 +12,7 @@ import {
 } from '@/constants/news/category-routes';
 import { ASSETS } from '@/constants/layout/assets';
 import { formatArticleDateSlash } from '@/lib/utils/article-date';
+import { getArticleHref } from '@/lib/news/article-url';
 import type { NewsArticle, NewsCategory, Project } from '@/lib/api/news';
 
 interface ArticleDetailSidebarProps {
@@ -46,7 +48,7 @@ export function ArticleDetailSidebar({
             </div>
             <div className="category-list">
               {categoryItems.map((category) => (
-                <Link
+                <SmartLink
                   key={category.slug}
                   href={getCategoryRouteHref(category.slug)}
                   className={`category-item${
@@ -54,7 +56,7 @@ export function ArticleDetailSidebar({
                   }`}
                 >
                   {category.name}
-                </Link>
+                </SmartLink>
               ))}
             </div>
           </div>
@@ -67,18 +69,20 @@ export function ArticleDetailSidebar({
             </div>
             <div className="flex-grow-1">
               {featuredArticles.map((item) => (
-                <Link
+                <SmartLink
                   key={item.id}
-                  href={`/ban-tin/${item.slug}`}
+                  href={getArticleHref(item.category.slug, item.slug)}
                   className="news-item image-scale"
                 >
-                  <div className="news-img overflow-hidden">
-                    <Image
+                  <div
+                    className="news-img overflow-hidden position-relative"
+                    style={{ width: 80, height: 60, flexShrink: 0 }}
+                  >
+                    <ImageWithSkeleton
+                      layout="fill"
                       src={item.coverImage ?? ASSETS.noImage}
                       alt={item.title}
-                      width={80}
-                      height={60}
-                      className="w-100 h-100"
+                      sizes="80px"
                     />
                   </div>
                   <div className="news-body">
@@ -88,52 +92,21 @@ export function ArticleDetailSidebar({
                       {formatArticleDateSlash(item.publishedAt)}
                     </div>
                   </div>
-                </Link>
+                </SmartLink>
               ))}
             </div>
-            <Link
+            <SmartLink
               href="/ban-tin"
               className="view-all justify-content-end"
               style={{ fontSize: 12 }}
             >
               Xem tất cả <i className="fa fa-arrow-right" />
-            </Link>
+            </SmartLink>
           </div>
         </div>
 
         <div className="col-12 col-md-6 col-lg-12 col-xxl-6 mb-2">
-          <div className="sidebar-widget position-relative overflow-hidden h-100">
-            <div className="widget-header">
-              <h3 className="widget-title">Tin tức dự án</h3>
-            </div>
-            <div
-              className="project-list overflow-y-auto"
-              style={{ maxHeight: 345 }}
-            >
-              {projects.map((project) => (
-                <Link
-                  key={project.id}
-                  href={`/ban-tin/${project.slug}`}
-                  className="project-item"
-                  title={project.name}
-                >
-                  <Image
-                    src={project.coverImage ?? ASSETS.noImage}
-                    alt={project.name}
-                    width={48}
-                    height={48}
-                    className="project-thumb"
-                  />
-                  <div className="project-details">
-                    <div className="project-title">{project.name}</div>
-                    <div className="project-location limit_2line">
-                      {project.address}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <ProjectNewsWidget projects={projects} />
         </div>
 
         <SidebarDevelopers />
@@ -153,28 +126,34 @@ function SidebarDevelopers() {
         <div className="position-relative overflow-hidden rounded-3 h-100 p-2">
           <div className="flex-grow-1">
             {ARTICLE_DEVELOPERS.map((developer) => (
-              <Link key={developer.name} href="#" className="list-item">
-                <Image
-                  src={developer.logo}
-                  alt={developer.name}
-                  width={56}
-                  height={56}
-                  className="developer-logo"
-                />
+              <SmartLink key={developer.name} href="#" className="list-item">
+                <div
+                  className="developer-logo position-relative flex-shrink-0"
+                  style={{ width: 56, height: 56 }}
+                >
+                  <ImageWithSkeleton
+                    layout="fill"
+                    src={developer.logo}
+                    alt={developer.name}
+                    sizes="56px"
+                    imageClassName="object-contain"
+                    rounded="rounded"
+                  />
+                </div>
                 <div>
                   <div className="item-title">{developer.name}</div>
                   <div className="item-subtitle">{developer.projectCount}</div>
                 </div>
-              </Link>
+              </SmartLink>
             ))}
           </div>
-          <Link
+          <SmartLink
             href="#"
             className="view-all justify-content-end"
             style={{ fontSize: 12 }}
           >
             Xem tất cả <i className="fa fa-arrow-right" />
-          </Link>
+          </SmartLink>
           <ProUpgradeOverlay />
         </div>
       </div>
@@ -196,7 +175,7 @@ function SidebarRelatedDocs() {
             <div className="position-relative overflow-hidden rounded-3 p-2">
               <div className="report-list">
                 {ARTICLE_RELATED_DOCS.map((doc) => (
-                  <Link key={doc.title} href="#" className="report-item">
+                  <SmartLink key={doc.title} href="#" className="report-item">
                     <div className="report-icon-wrapper">
                       <div className="pdf-icon" />
                     </div>
@@ -204,7 +183,7 @@ function SidebarRelatedDocs() {
                       <div className="report-title">{doc.title}</div>
                       <div className="report-size">{doc.size}</div>
                     </div>
-                  </Link>
+                  </SmartLink>
                 ))}
               </div>
               <ProUpgradeOverlay />

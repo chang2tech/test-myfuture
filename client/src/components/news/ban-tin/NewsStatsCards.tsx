@@ -51,7 +51,14 @@ export function NewsStatsCards({ stats }: NewsStatsCardsProps) {
   ];
 
   return (
-    <OwlCarouselRow showNav xsSlide={1.5} mdSlide={3} lgSlide={4} loop>
+    <OwlCarouselRow
+      className="news-stats-carousel"
+      showNav
+      xsSlide={1.5}
+      mdSlide={3}
+      lgSlide={4}
+      loop={false}
+    >
       {cards.map((card) => (
         <OwlCarouselItem key={card.label}>
           <div className="bg-white rounded-3 p-3 d-flex align-items-center gap-3 shadow-sm card-hover h-100">

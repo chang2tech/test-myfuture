@@ -1,3 +1,5 @@
+import { SmartLink } from '@/components/shared/SmartLink';
+
 export function AuthFooter() {
   return (
     <footer className="auth-footer">
@@ -5,16 +7,16 @@ export function AuthFooter() {
         <div className="auth-footer-left">
           <p>© 2026 bởi MyFuture. Mọi quyền được bảo lưu.</p>
           <div className="auth-footer-links">
-            <a
+            <SmartLink
               href="/thong-tin/chinh-sach-bao-mat"
               title="Chính sách bảo mật"
             >
               Chính sách bảo mật
-            </a>
+            </SmartLink>
             <span>|</span>
-            <a href="/thong-tin/dieu-khoan-su-dung" title="Điều khoản sử dụng">
+            <SmartLink href="/thong-tin/dieu-khoan-su-dung" title="Điều khoản sử dụng">
               Điều khoản sử dụng
-            </a>
+            </SmartLink>
           </div>
         </div>
         <div className="auth-footer-right">

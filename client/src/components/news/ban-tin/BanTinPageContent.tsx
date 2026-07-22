@@ -21,8 +21,6 @@ interface BanTinPageContentProps {
 
 export async function BanTinPageContent({ category }: BanTinPageContentProps) {
   const activeCategory = category ?? 'toan-canh';
-  const filterCategory =
-    activeCategory === 'toan-canh' ? undefined : activeCategory;
 
   const [stats, categories, homeNews, projects] = await Promise.all([
     getMarketStats(),

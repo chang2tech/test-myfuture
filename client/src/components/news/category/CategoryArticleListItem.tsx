@@ -1,6 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { ASSETS } from '@/constants/layout/assets';
+import { getArticleHref } from '@/lib/news/article-url';
 import type { NewsArticle } from '@/lib/api/news';
 
 interface CategoryArticleListItemProps {
@@ -28,15 +29,17 @@ export function CategoryArticleListItem({
         isLast ? '' : ' border-bottom'
       }`}
     >
-      <Link href={`/ban-tin/${article.slug}`} className="news-thumb">
-        <Image
+      <SmartLink
+        href={getArticleHref(article.category.slug, article.slug)}
+        className="news-thumb position-relative d-block"
+      >
+        <ImageWithSkeleton
+          layout="fill"
           src={article.coverImage ?? ASSETS.noImage}
           alt={article.title}
-          width={160}
-          height={120}
-          className="rounded-3 object-fit-cover w-100 h-100"
+          sizes="(max-width: 768px) 100vw, 120px"
         />
-      </Link>
+      </SmartLink>
       <div
         className="bg-secondary rounded-circle text-white text-center flex-shrink-0 d-none d-md-block"
         style={{ width: 24, height: 24, lineHeight: '24px' }}
@@ -44,12 +47,12 @@ export function CategoryArticleListItem({
         {index}
       </div>
       <div className="flex-grow-1 min-w-0">
-        <Link
-          href={`/ban-tin/${article.slug}`}
+        <SmartLink
+          href={getArticleHref(article.category.slug, article.slug)}
           className="text-dark fw-bold active-single fs-5"
         >
           {article.title}
-        </Link>
+        </SmartLink>
         {article.excerpt && (
           <div className="limit_1line mt-1">{article.excerpt}</div>
         )}

@@ -1,11 +1,9 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import {
   OwlCarouselItem,
   OwlCarouselRow,
 } from '@/components/shared/OwlCarouselRow';
 import { QUICK_ACCESS_ITEMS } from '@/constants/news/quick-access';
-
-const QUICK_ACCESS_ITEM_WIDTH = 182.25;
 
 export function QuickAccessSection() {
   return (
@@ -18,11 +16,10 @@ export function QuickAccessSection() {
         mdSlide={5}
         lgSlide={6}
         loop={false}
-        fixedItemWidth={QUICK_ACCESS_ITEM_WIDTH}
       >
         {QUICK_ACCESS_ITEMS.map((item) => (
-          <OwlCarouselItem key={item.title} width={QUICK_ACCESS_ITEM_WIDTH}>
-            <Link
+          <OwlCarouselItem key={item.title}>
+            <SmartLink
               href={item.href}
               className={`quick-access-card${item.positionRelative ? ' position-relative' : ''}`}
             >
@@ -39,7 +36,7 @@ export function QuickAccessSection() {
               {item.isPro && (
                 <span className="tool-badge tool-badge_pro">Pro</span>
               )}
-            </Link>
+            </SmartLink>
           </OwlCarouselItem>
         ))}
       </OwlCarouselRow>

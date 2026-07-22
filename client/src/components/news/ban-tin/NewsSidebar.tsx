@@ -1,6 +1,6 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { ASSETS } from '@/constants/layout/assets';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ProjectNewsWidget } from '@/components/news/shared/ProjectNewsWidget';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { ProUpgradeOverlay } from '@/components/news/shared/ProUpgradeOverlay';
 import type { NewsCategory, Project } from '@/lib/api/news';
 
@@ -38,9 +38,9 @@ export function NewsSidebar({ categories, projects }: NewsSidebarProps) {
       <div className="sidebar-widget position-relative overflow-hidden">
         <div className="widget-header">
           <h3 className="widget-title">Bản tin bộ lọc</h3>
-          <Link href="#" className="widget-link-muted">
+          <SmartLink href="#" className="widget-link-muted">
             Tùy chỉnh <i className="fa-solid fa-gear" />
-          </Link>
+          </SmartLink>
         </div>
 
         <div className="filter-tabs">
@@ -58,13 +58,18 @@ export function NewsSidebar({ categories, projects }: NewsSidebarProps) {
           {FILTER_COMPANIES.map((company) => (
             <div key={company.name} className="filter-list-item">
               <div className="company-info">
-                <Image
-                  src={company.logo}
-                  alt={company.name}
-                  width={40}
-                  height={20}
-                  className="company-logo"
-                />
+                <div
+                  className="company-logo position-relative flex-shrink-0"
+                  style={{ width: 40, height: 20 }}
+                >
+                  <ImageWithSkeleton
+                    layout="fill"
+                    src={company.logo}
+                    alt={company.name}
+                    sizes="40px"
+                    imageClassName="object-contain"
+                  />
+                </div>
                 <span className="company-name">{company.name}</span>
               </div>
               <span className="news-count">{company.count}</span>
@@ -73,46 +78,18 @@ export function NewsSidebar({ categories, projects }: NewsSidebarProps) {
         </div>
 
         <div className="text-end mt-3">
-          <Link
+          <SmartLink
             href="/mf/chu-dau-tu"
             className="view-all justify-content-end"
             style={{ fontSize: 12 }}
           >
             Xem tất cả CĐT <i className="fa fa-arrow-right" />
-          </Link>
+          </SmartLink>
         </div>
         <ProUpgradeOverlay />
       </div>
 
-      <div className="sidebar-widget position-relative overflow-hidden h-100 mt-3">
-        <div className="widget-header">
-          <h3 className="widget-title">Tin tức dự án</h3>
-        </div>
-        <div className="project-list overflow-y-auto" style={{ maxHeight: 345 }}>
-          {projects.map((project) => (
-            <Link
-              key={project.id}
-              href={`/ban-tin/${project.slug}`}
-              className="project-item"
-              title={project.name}
-            >
-              <Image
-                src={project.coverImage ?? ASSETS.noImage}
-                alt={project.name}
-                width={48}
-                height={48}
-                className="project-thumb"
-              />
-              <div className="project-details">
-                <div className="project-title">{project.name}</div>
-                <div className="project-location limit_2line">
-                  {project.address}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <ProjectNewsWidget projects={projects} className="mt-3" />
 
       {categories.length > 0 && (
         <div className="sidebar-widget mt-3 d-none">

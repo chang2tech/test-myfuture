@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ComingSoonButton } from '@/components/shared/ComingSoonButton';
 import { SearchHeader } from '@/components/layout/SearchHeader';
 import { ASSETS } from '@/constants/layout/assets';
 
@@ -12,7 +15,7 @@ export function AppNavbar() {
       <nav className="navbar-custom" id="desktopNav">
         <div className="container-fluid">
           <div className="d-flex w-100 align-items-center justify-content-between">
-            <Link className="brand" href="/">
+            <SmartLink className="brand" href="/">
               <Image
                 src={ASSETS.logo}
                 width={180}
@@ -21,14 +24,14 @@ export function AppNavbar() {
                 className="w-auto"
                 priority
               />
-            </Link>
+            </SmartLink>
             <div className="d-flex align-items-center gap-2">
               <SearchHeader />
             </div>
             <div className="nav-actions">
-              <Link href="/dang-nhap" className="btn-login">
+              <SmartLink href="/admin/login" className="btn-login">
                 Đăng nhập
-              </Link>
+              </SmartLink>
             </div>
           </div>
         </div>
@@ -46,7 +49,7 @@ export function AppNavbar() {
                 <i className="bx bx-menu bx-sm" />
               </a>
             </div>
-            <Link className="mobile-brand" href="/">
+            <SmartLink className="mobile-brand" href="/">
               <Image
                 src={ASSETS.logo}
                 width={155}
@@ -55,22 +58,26 @@ export function AppNavbar() {
                 className="w-auto"
                 priority
               />
-            </Link>
+            </SmartLink>
           </div>
           <div className="mobile-header-actions">
             <div className="position-relative d-flex align-items-center box_search_header">
               <SearchHeader id="mobile-search-header" />
-              <button className="nav-icon-btn btn_search" type="button">
+              <ComingSoonButton
+                className="nav-icon-btn btn_search"
+                aria-label="Tìm kiếm"
+                feature="Tìm kiếm đang được cập nhật"
+              >
                 <i className="bx bx-search" style={{ pointerEvents: 'none' }} />
-              </button>
+              </ComingSoonButton>
             </div>
-            <Link
+            <SmartLink
               className="btn btn-sm bg-main rounded-3 text-white fw-bold py-2"
-              href="/dang-nhap"
+              href="/admin/login"
               title="Đăng nhập"
             >
               Đăng nhập
-            </Link>
+            </SmartLink>
           </div>
         </div>
       </header>

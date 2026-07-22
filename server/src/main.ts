@@ -1,12 +1,23 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
+import express from 'express';
 import { AppModule } from './app.module';
+import {
+  getUploadDirectory,
+  UPLOAD_PUBLIC_BASE_PATH,
+} from './upload/upload.paths';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
+
+  app.use(UPLOAD_PUBLIC_BASE_PATH, express.static(getUploadDirectory(config)));
+
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(

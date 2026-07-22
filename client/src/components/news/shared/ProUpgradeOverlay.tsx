@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 
 export function ProUpgradeOverlay() {
   return (
@@ -9,9 +9,9 @@ export function ProUpgradeOverlay() {
         </span>
         <h4 className="text-reset fs-16 fw-bold mb-2">Tính năng Pro</h4>
         <div className="mb-3 fs-12">Mở khóa để xem chi tiết</div>
-        <Link className="btn-register" href="/nang-cap-pro/">
+        <SmartLink className="btn-register" href="/nang-cap-pro/">
           Nâng cấp lên Pro
-        </Link>
+        </SmartLink>
       </div>
     </div>
   );

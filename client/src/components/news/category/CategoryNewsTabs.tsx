@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { NEWS_CATEGORY_TABS } from '@/constants/news/categories';
 import { getCategoryRouteHref } from '@/constants/news/category-routes';
 
@@ -14,7 +14,7 @@ export function CategoryNewsTabs({ activeSlug }: CategoryNewsTabsProps) {
         const label = tab.slug === 'toan-canh' ? 'Tất cả' : tab.name;
 
         return (
-          <Link
+          <SmartLink
             key={tab.slug}
             href={getCategoryRouteHref(tab.slug)}
             className={`tab-link nav-link d-flex align-items-center gap-2 px-2 py-3 rounded-2 text-secondary small${
@@ -23,7 +23,7 @@ export function CategoryNewsTabs({ activeSlug }: CategoryNewsTabsProps) {
           >
             <i className={`bx ${tab.icon}`} />
             {label}
-          </Link>
+          </SmartLink>
         );
       })}
     </div>

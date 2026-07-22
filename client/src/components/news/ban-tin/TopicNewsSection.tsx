@@ -1,5 +1,5 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import { SmartLink } from '@/components/shared/SmartLink';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import {
   OwlCarouselItem,
   OwlCarouselRow,
@@ -15,28 +15,24 @@ interface TopicNewsSectionProps {
   categories: NewsCategory[];
 }
 
-const TOPIC_ITEM_WIDTH = 310.417;
-
 export function TopicNewsSection({ categories }: TopicNewsSectionProps) {
   const topics = categories.filter((c) => c.slug !== 'toan-canh');
 
   return (
-    <div className="box_topic_news">
+    <div className="mb-4 box_topic_news">
       <h2 className="section-heading">Tin tức theo chủ đề</h2>
-      <OwlCarouselRow>
+      <OwlCarouselRow showNav xsSlide={1.5} smSlide={2} mdSlide={3} lgSlide={4}>
         {topics.map((category) => (
-          <OwlCarouselItem key={category.id} width={TOPIC_ITEM_WIDTH}>
-            <Link
+          <OwlCarouselItem key={category.id}>
+            <SmartLink
               href={getCategoryRouteHref(category.slug)}
               className="topic-news-card"
             >
-              <Image
+              <ImageWithSkeleton
+                layout="fill"
                 src={TOPIC_IMAGES[category.slug] ?? TOPIC_FALLBACK_IMAGE}
                 alt={category.name}
-                width={600}
-                height={350}
-                className="w-100 h-100"
-                style={{ objectFit: 'cover' }}
+                sizes="(max-width: 576px) 66vw, (max-width: 768px) 50vw, (max-width: 1199px) 33vw, 25vw"
               />
               <div className="topic-overlay">
                 <div className="topic-title">{category.name}</div>
@@ -44,7 +40,7 @@ export function TopicNewsSection({ categories }: TopicNewsSectionProps) {
                   {category._count?.articles ?? 0} bài viết
                 </div>
               </div>
-            </Link>
+            </SmartLink>
           </OwlCarouselItem>
         ))}
       </OwlCarouselRow>

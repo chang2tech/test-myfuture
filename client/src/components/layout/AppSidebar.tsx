@@ -1,12 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { SmartLink } from '@/components/shared/SmartLink';
 import { MENU_ITEMS } from '@/constants/layout/menu-items';
 
 export function AppSidebar() {
-  const pathname = usePathname();
-
   return (
     <aside
       id="layout-menu"
@@ -20,23 +17,15 @@ export function AppSidebar() {
               return <div key={`divider-${index}`} className="menu-divider" />;
             }
 
-            const isActive =
-              item.href === '/ban-tin'
-                ? pathname.startsWith('/ban-tin')
-                : pathname === item.href;
-
             return (
               <li
                 key={item.label}
-                className={`menu-item${item.isAi ? ' menu-item-ai' : ''}${isActive ? ' active' : ''}`}
+                className={`menu-item${item.isAi ? ' menu-item-ai' : ''}`}
               >
-                <Link
+                <SmartLink
                   href={item.href}
                   className="menu-link"
                   data-toggle="ripple"
-                  {...(item.href.startsWith('http')
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
                 >
                   {item.isAi ? (
                     <span className="menu-ai-badge">AI</span>
@@ -55,7 +44,7 @@ export function AppSidebar() {
                       {item.badge.text}
                     </span>
                   )}
-                </Link>
+                </SmartLink>
               </li>
             );
           })}
@@ -77,7 +66,7 @@ export function AppSidebar() {
                 Phân tích chuyên sâu <br />– Cập nhật thị trường
                 <br />– Gợi ý phương án tối ưu cho bạn.
               </p>
-              <Link className="cta-button" href="/mind/">
+              <SmartLink className="cta-button" href="/mind/">
                 <svg
                   width="15"
                   height="15"
@@ -88,7 +77,7 @@ export function AppSidebar() {
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                 </svg>
                 Trải nghiệm ngay
-              </Link>
+              </SmartLink>
             </div>
           </div>
           <a href="tel:0966-541-145" className="menu-footer-support mt-2">

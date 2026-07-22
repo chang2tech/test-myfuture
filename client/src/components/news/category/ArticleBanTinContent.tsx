@@ -1,22 +1,28 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ArticleBreadcrumb } from '@/components/news/article/ArticleBreadcrumb';
 import { ArticleDetailBody } from '@/components/news/article/ArticleDetailBody';
 import { ArticleDetailHeader } from '@/components/news/article/ArticleDetailHeader';
 import { ArticleDetailSidebar } from '@/components/news/article/ArticleDetailSidebar';
 import { ArticleNavigation } from '@/components/news/article/ArticleNavigation';
 import { ArticleRecommendedSection } from '@/components/news/article/ArticleRecommendedSection';
+import { getCategoryRouteById } from '@/constants/news/category-routes';
 import { env } from '@/lib/core/env';
 import {
   getFeaturedProjects,
   getNewsArticleDetail,
   getNewsCategories,
 } from '@/lib/api/news';
+import { getArticleHref } from '@/lib/news/article-url';
 
 interface ArticleBanTinContentProps {
   slug: string;
+  categoryRoute?: string;
 }
 
-export async function ArticleBanTinContent({ slug }: ArticleBanTinContentProps) {
+export async function ArticleBanTinContent({
+  slug,
+  categoryRoute,
+}: ArticleBanTinContentProps) {
   let detail;
   try {
     [detail] = await Promise.all([getNewsArticleDetail(slug)]);
@@ -24,12 +30,20 @@ export async function ArticleBanTinContent({ slug }: ArticleBanTinContentProps) 
     notFound();
   }
 
+  const canonicalHref = getArticleHref(detail.category.slug, detail.slug);
+  if (categoryRoute) {
+    const config = getCategoryRouteById(categoryRoute);
+    if (!config || config.slug !== detail.category.slug) {
+      redirect(canonicalHref);
+    }
+  }
+
   const [categories, projects] = await Promise.all([
     getNewsCategories(),
     getFeaturedProjects(14),
   ]);
 
-  const shareUrl = `${env.NEXT_PUBLIC_SITE_URL}/ban-tin/${detail.slug}`;
+  const shareUrl = `${env.NEXT_PUBLIC_SITE_URL}${canonicalHref}`;
 
   return (
     <div className="container-xxl flex-grow-1 container-p-y">
@@ -48,7 +62,11 @@ export async function ArticleBanTinContent({ slug }: ArticleBanTinContentProps) 
             <div className="col-12 col-lg-7 col-xl-7 mb-4">
               <ArticleDetailHeader article={detail} />
               <ArticleDetailBody content={detail.content} shareUrl={shareUrl} />
-              <ArticleNavigation prev={detail.prev} next={detail.next} />
+              <ArticleNavigation
+                categorySlug={detail.category.slug}
+                prev={detail.prev}
+                next={detail.next}
+              />
               <ArticleRecommendedSection articles={detail.recommended} />
             </div>
             <div className="col-12 col-lg-5 col-xl-5">

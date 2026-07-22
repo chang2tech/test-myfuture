@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import {
   cleanContentHtml,
   decodeHtmlEntities,
@@ -153,7 +154,28 @@ async function upsertArticle(
   return data.slug;
 }
 
+async function seedAdminUser() {
+  const email = (process.env.DEV_ADMIN_EMAIL ?? 'admin@myfuture.vn').toLowerCase();
+  const password = process.env.DEV_ADMIN_PASSWORD ?? 'Admin@2026';
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash, role: 'ADMIN', name: 'Administrator' },
+    create: {
+      email,
+      passwordHash,
+      role: 'ADMIN',
+      name: 'Administrator',
+    },
+  });
+
+  console.log(`Seeded admin user: ${email}`);
+}
+
 async function main() {
+  await seedAdminUser();
+
   for (const category of categories) {
     await prisma.newsCategory.upsert({
       where: { slug: category.slug },
