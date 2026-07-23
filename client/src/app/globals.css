@@ -319,12 +319,29 @@ i.bxl {
 .featured-img-wrap img,
 .card-img-wrap img,
 .company-logo {
+  position: relative;
   object-fit: cover;
 }
 
 .card-img-wrap,
 .featured-img-wrap {
   position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.featured-img-wrap {
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 768px) {
+  .featured-img-wrap {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+.card-img-wrap {
+  aspect-ratio: 3 / 2;
 }
 
 /* Widget Tin tức dự án — 4 thẻ, cuộn phần còn lại */
@@ -380,6 +397,7 @@ i.bxl {
 }
 
 .news-thumb {
+  position: relative;
   width: 120px;
   height: 80px;
   flex-shrink: 0;
@@ -397,7 +415,11 @@ i.bxl {
 
 .topic-news-card {
   position: relative;
+  display: block;
   width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
 }
 
 .box_topic_news .mf-owl-item {
@@ -543,6 +565,90 @@ i.bxl {
 #projectCarousel .card-img-wrap img {
   object-fit: cover;
   transition: transform 0.4s ease;
+}
+
+/* ImageWithSkeleton — layout wrappers (Bootstrap theme, no Tailwind dependency) */
+.image-with-skeleton {
+  overflow: hidden;
+  background-color: #ececec;
+}
+
+.image-with-skeleton--fill {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image-with-skeleton--aspect {
+  position: relative;
+  width: 100%;
+}
+
+.image-with-skeleton--aspect-16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.image-with-skeleton--aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.image-with-skeleton--aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
+.image-with-skeleton--aspect-1-1 {
+  aspect-ratio: 1 / 1;
+}
+
+.image-with-skeleton--aspect-2-1 {
+  aspect-ratio: 2 / 1;
+}
+
+.image-with-skeleton--aspect-4-5 {
+  aspect-ratio: 4 / 5;
+}
+
+.image-with-skeleton--aspect-12-7 {
+  aspect-ratio: 12 / 7;
+}
+
+.image-with-skeleton--aspect-20-9 {
+  aspect-ratio: 20 / 9;
+}
+
+.image-with-skeleton--intrinsic {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.image-with-skeleton__img {
+  position: relative;
+  z-index: 1;
+  object-fit: cover;
+}
+
+.image-with-skeleton__img-intrinsic {
+  position: relative;
+  z-index: 1;
+}
+
+.image-with-skeleton__error {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ececec;
+  padding: 0 0.75rem;
+  text-align: center;
+}
+
+.image-with-skeleton__error-text {
+  font-size: 10px;
+  font-weight: 500;
+  color: #9ca3af;
 }
 
 /* Image skeleton — shimmer placeholder (MoMo/ZaloPay style) */

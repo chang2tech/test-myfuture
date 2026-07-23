@@ -26,7 +26,7 @@ export function TopicNewsSection({ categories }: TopicNewsSectionProps) {
           <OwlCarouselItem key={category.id}>
             <SmartLink
               href={getCategoryRouteHref(category.slug)}
-              className="topic-news-card"
+              className="topic-news-card position-relative d-block overflow-hidden"
             >
               <ImageWithSkeleton
                 layout="fill"

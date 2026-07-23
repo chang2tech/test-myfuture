@@ -21,14 +21,14 @@ export type ImageAspectRatio =
   | '20/9';
 
 const ASPECT_CLASS: Record<ImageAspectRatio, string> = {
-  '16/9': 'aspect-video',
-  '4/3': 'aspect-[4/3]',
-  '3/2': 'aspect-[3/2]',
-  '1/1': 'aspect-square',
-  '2/1': 'aspect-[2/1]',
-  '4/5': 'aspect-[4/5]',
-  '12/7': 'aspect-[12/7]',
-  '20/9': 'aspect-[20/9]',
+  '16/9': 'image-with-skeleton--aspect-16-9',
+  '4/3': 'image-with-skeleton--aspect-4-3',
+  '3/2': 'image-with-skeleton--aspect-3-2',
+  '1/1': 'image-with-skeleton--aspect-1-1',
+  '2/1': 'image-with-skeleton--aspect-2-1',
+  '4/5': 'image-with-skeleton--aspect-4-5',
+  '12/7': 'image-with-skeleton--aspect-12-7',
+  '20/9': 'image-with-skeleton--aspect-20-9',
 };
 
 type ImageWithSkeletonBaseProps = {
@@ -91,16 +91,16 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
   const resolvedLayout = props.layout ?? 'aspect';
 
   const containerClassName = cn(
-    'overflow-hidden bg-[#ececec]',
-    resolvedLayout === 'fill' && 'relative h-full w-full',
+    'image-with-skeleton',
+    resolvedLayout === 'fill' && 'image-with-skeleton--fill',
     resolvedLayout === 'aspect' &&
       cn(
-        'relative w-full',
+        'image-with-skeleton--aspect',
         ASPECT_CLASS[
           'aspectRatio' in props && props.aspectRatio ? props.aspectRatio : '3/2'
         ],
       ),
-    resolvedLayout === 'intrinsic' && 'relative inline-block leading-none',
+    resolvedLayout === 'intrinsic' && 'image-with-skeleton--intrinsic',
     rounded,
     className,
   );
@@ -118,8 +118,8 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
     <div ref={containerRef} className={containerClassName}>
       {!error && <ImageSkeleton exiting={loaded} />}
       {error ? (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#ececec] px-3 text-center">
-          <span className="text-[10px] font-medium text-gray-400">
+        <div className="image-with-skeleton__error">
+          <span className="image-with-skeleton__error-text">
             Image unavailable
           </span>
         </div>
@@ -131,7 +131,7 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
           height={intrinsicImage.height}
           sizes={sizes}
           priority={priority}
-          className={cn('relative z-[1]', imageClassName)}
+          className={cn('image-with-skeleton__img-intrinsic', imageClassName)}
           style={{ ...intrinsicImage.style, ...revealStyle }}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
@@ -143,7 +143,7 @@ function ImageWithSkeletonInner(props: ImageWithSkeletonProps) {
           fill
           sizes={sizes}
           priority={priority}
-          className={cn('z-[1] object-cover', imageClassName)}
+          className={cn('image-with-skeleton__img', imageClassName)}
           style={revealStyle}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}

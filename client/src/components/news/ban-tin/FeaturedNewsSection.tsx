@@ -23,11 +23,11 @@ export function FeaturedNewsSection({
       <div className="col-12 col-md-6 col-lg-7">
         {featured && (
           <div className="box_featured position-relative rounded-3 overflow-hidden image-scale h-100">
-            <div className="featured-img-wrap position-relative">
+            <div className="featured-img-wrap position-relative overflow-hidden">
               <span className="featured-badge-red">NỔI BẬT</span>
               <SmartLink
                 href={getArticleHref(featured.category.slug, featured.slug)}
-                className="d-block h-100 position-relative"
+                className="d-block position-relative h-100 w-100"
               >
                 <ImageWithSkeleton
                   layout="fill"
