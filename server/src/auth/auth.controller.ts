@@ -43,7 +43,12 @@ export class AuthController {
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: FastifyReply) {
-    res.clearCookie('access_token', { path: '/' });
+    res.clearCookie('access_token', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
     return { ok: true };
   }
 

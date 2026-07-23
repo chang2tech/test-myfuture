@@ -18,13 +18,18 @@ export async function authFetch<T>(
   options?: RequestInit,
 ): Promise<T> {
   const isFormData = options?.body instanceof FormData;
+  const hasJsonBody =
+    options?.body !== undefined &&
+    options?.body !== null &&
+    options?.body !== '' &&
+    !isFormData;
 
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     credentials: 'include',
     cache: 'no-store',
     headers: {
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...(hasJsonBody ? { 'Content-Type': 'application/json' } : {}),
       ...options?.headers,
     },
   });
