@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { HOME_ARTICLE_EXTERNAL_SLUGS } from '../../scripts/news-content-utils';
+import { HOME_ARTICLE_EXTERNAL_SLUGS } from './news.constants';
 import { CACHE_KEYS, CACHE_TTL } from '../redis/redis.constants';
 import { CacheService } from '../redis/cache.service';
 import { NewsQueueService } from '../queue/news-queue.service';

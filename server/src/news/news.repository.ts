@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { HOME_ARTICLE_EXTERNAL_SLUGS } from '../../scripts/news-content-utils';
+import { HOME_ARTICLE_EXTERNAL_SLUGS } from './news.constants';
 import { PrismaService } from '../prisma/prisma.service';
 
 export type NewsArticleWithCategory = Prisma.NewsArticleGetPayload<{
