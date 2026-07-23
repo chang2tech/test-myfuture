@@ -49,6 +49,7 @@ export function ArticleListPanel({
 }: ArticleListPanelProps) {
   const [articles, setArticles] = useState<AdminArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [categoryId, setCategoryId] = useState('');
@@ -83,6 +84,7 @@ export function ArticleListPanel({
   async function handleDelete(article: AdminArticle) {
     if (!window.confirm(`Xóa bài "${article.title}"?`)) return;
 
+    setDeletingId(article.id);
     try {
       await deleteAdminArticle(article.id);
       await revalidateNewsCache();
@@ -90,6 +92,8 @@ export function ArticleListPanel({
       void loadArticles();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Xóa thất bại');
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -216,6 +220,7 @@ export function ArticleListPanel({
                           label="Xóa bài viết"
                           variant="danger"
                           size="sm"
+                          disabled={deletingId === article.id}
                           onClick={() => void handleDelete(article)}
                         />
                       </div>

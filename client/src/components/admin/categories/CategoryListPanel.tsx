@@ -18,6 +18,7 @@ interface CategoryListPanelProps {
 export function CategoryListPanel({ onEdit, refreshKey = 0 }: CategoryListPanelProps) {
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -39,6 +40,7 @@ export function CategoryListPanel({ onEdit, refreshKey = 0 }: CategoryListPanelP
   async function handleDelete(category: AdminCategory) {
     if (!window.confirm(`Xóa danh mục "${category.name}"?`)) return;
 
+    setDeletingId(category.id);
     try {
       await deleteAdminCategory(category.id);
       await revalidateNewsCache();
@@ -48,6 +50,8 @@ export function CategoryListPanel({ onEdit, refreshKey = 0 }: CategoryListPanelP
       toast.error(
         error instanceof Error ? error.message : 'Không thể xóa danh mục',
       );
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -100,6 +104,7 @@ export function CategoryListPanel({ onEdit, refreshKey = 0 }: CategoryListPanelP
                       label="Xóa danh mục"
                       variant="danger"
                       size="sm"
+                      disabled={deletingId === category.id}
                       onClick={() => void handleDelete(category)}
                     />
                   </div>

@@ -10,7 +10,6 @@ interface ApiResponse<T> {
 async function publicSearchFetch<T>(path: string): Promise<T> {
   const base = typeof window !== 'undefined' ? '/api' : env.apiUrl;
   const response = await fetch(`${base}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     cache: 'no-store',
   });
 

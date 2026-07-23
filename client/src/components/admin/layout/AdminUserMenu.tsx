@@ -45,8 +45,10 @@ export function AdminUserMenu() {
       await logout();
       router.push('/admin/login');
       router.refresh();
-    } catch {
-      toast.error('Không thể đăng xuất');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Không thể đăng xuất',
+      );
     } finally {
       setLoggingOut(false);
       setOpen(false);

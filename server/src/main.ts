@@ -19,8 +19,27 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
+    { bodyParser: false },
   );
   const config = app.get(ConfigService);
+
+  const fastify = app.getHttpAdapter().getInstance();
+  fastify.addContentTypeParser(
+    'application/json',
+    { parseAs: 'string' },
+    (_request, body, done) => {
+      if (body === '' || body === undefined || body === null) {
+        done(null, undefined);
+        return;
+      }
+
+      try {
+        done(null, JSON.parse(body as string) as unknown);
+      } catch (error) {
+        done(error as Error, undefined);
+      }
+    },
+  );
 
   await app.register(fastifyCookie);
   await app.register(fastifyMultipart, {

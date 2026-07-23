@@ -1,4 +1,5 @@
 import { env } from '@/lib/core/env';
+import { buildFetchHeaders } from '@/lib/api/fetch-headers';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -22,10 +23,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers: buildFetchHeaders(options),
     next: { tags: ['news'], revalidate: 60 },
   });
 
